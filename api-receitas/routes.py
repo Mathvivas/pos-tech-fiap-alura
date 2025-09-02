@@ -97,6 +97,8 @@ def create_recipe():
                     type: string
                 time_minutes:
                     type: integer
+                description:
+                    type: string
         responses:
             201:
                 description: Receita criada com sucesso
@@ -104,10 +106,13 @@ def create_recipe():
                 description: Token não fornecido ou inválido
     """
     data = request.get_json()
+    current_user_id = get_jwt_identity()
     new_recipe = Recipe(
         title=data['title'],
         ingredients=data['ingredients'],
-        time_minutes=data['time_minutes']
+        time_minutes=data['time_minutes'],
+        description=data['description'],
+        usuario_id=current_user_id
     )
     db.session.add(new_recipe)
     db.session.commit()

@@ -22,6 +22,10 @@ from models import db
 
 target_metadata = db.metadata
 
+import config as app_config
+
+config.set_main_option("sqlalchemy.url", app_config.SQLALCHEMY_DATABASE_URI)
+
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")

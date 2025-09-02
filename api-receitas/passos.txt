@@ -15,3 +15,9 @@ alembic init alembic
     alembic revision --autogenerate -m "Adição de data de nascimento na tabela usuarios"
 - Aplicar a migração:
     alembic upgrade head
+
+
+- Ferramentas de checagem de código
+- pip install black flake8
+-- terminal: black <nome_do_projeto> --> formata o código
+-- terminal: flake8 <nome_do_projeto> --> verifica o código em busca de erros e possíveis bugs

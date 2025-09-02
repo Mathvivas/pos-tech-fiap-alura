@@ -1,13 +1,13 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flasgger import Swagger
 from flask_jwt_extended import JWTManager
+from models import db
 
 app = Flask(__name__)
 app.config.from_object('config')
 
 swagger = Swagger(app)
-db = SQLAlchemy(app)
+db.init_app(app)
 jwt = JWTManager(app)
 
 from routes import *

@@ -5,3 +5,13 @@ python3 -m venv venv
 source venv/bin/activate (Windows: venv/Scripts/activate)
 
 alembic init alembic
+- Criação do arquivo de migração na pasta alembic/versions/
+    alembic revision --autogenerate -m "Criação das tabelas iniciais"
+
+- Aplicar a migração:
+    alembic upgrade head
+
+- Adição de nova coluna na tabela:
+    alembic revision --autogenerate -m "Adição de data de nascimento na tabela usuarios"
+- Aplicar a migração:
+    alembic upgrade head

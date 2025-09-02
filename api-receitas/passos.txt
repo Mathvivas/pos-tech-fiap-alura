@@ -3,3 +3,5 @@ pyenv shell 3.11.13
 
 python3 -m venv venv
 source venv/bin/activate (Windows: venv/Scripts/activate)
+
+alembic init alembic

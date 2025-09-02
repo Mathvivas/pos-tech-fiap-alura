@@ -5,8 +5,8 @@ from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)
 app.config.from_object('config')
-swagger = Swagger(app)
 
+swagger = Swagger(app)
 db = SQLAlchemy(app)
 jwt = JWTManager(app)
 

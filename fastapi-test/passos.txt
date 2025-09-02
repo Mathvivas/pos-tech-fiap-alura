@@ -3,3 +3,15 @@ python -m venv venv
 - Inciar a aplicação: uvicorn main:app --reload
 
 - localhost:8000/docs --> gerado automaticamente
+- localhost:8000/redoc --> outra documentação gerado automaticamente
+
+
+- Fazendo um POST no terminal
+curl -X POST "http://localhost:8000/items" \
+-H "Content-Type: application/json" \
+-d '{
+    "name": "Caneca",
+    "description": "Caneca de cerâmica branca",
+    "price": 15.99,
+    "quantity": 50
+}'

@@ -1,0 +1,30 @@
+https://vercel.com/
+
+- Subir a aplicação no Github
+
+- Arquivos: 
+    - o arquivo principal (api_modelo.py)
+    - modelo.pkl
+    - database.db
+    - requirements.txt
+    - vercel.json
+
+```vercel.json
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "api_modelo.py",
+            "use": "@vercel/python"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "api_modelo.py"
+        }
+    ]
+}
+```
+
+- No Vercel: Add New --> Seleciona o repositório do Github

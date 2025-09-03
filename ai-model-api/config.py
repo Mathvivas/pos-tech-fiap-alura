@@ -1,0 +1,9 @@
+JWT_SECRET='MEUSEGREDOAQUI'
+JWT_ALGORITHM='HS256'
+JWT_EXP_DELTA_SECONDS=3600
+
+DB_URL = 'sqlite:///predictions.db'
+
+
+TEST_USERNAME = 'admin'
+TEST_PASSWORD = 'secret'

@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from app import app, db
-from models.book import Book
+from models import Book
 
 # Lista todos os livros disponíveis na base (definir paginação)
 @app.route('/api/v1/books', methods=['GET'])

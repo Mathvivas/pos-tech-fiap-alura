@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 SWAGGER = {
     'title': 'API de Livros',
@@ -9,4 +10,6 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join(BASE_DIR, 'books.db')}"
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-CSV_FILE_PATH = 'data/books.csv'
+APP_FOLDER = Path(__file__).parent
+
+CSV_FILE_PATH = APP_FOLDER.parent / "data" / "books.csv"

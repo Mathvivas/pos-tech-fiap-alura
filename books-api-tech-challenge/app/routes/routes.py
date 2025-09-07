@@ -1,13 +1,23 @@
 from flask import request, jsonify
-from app import app
+from app import app, db
 from models import Book
 
 # Lista todos os livros disponíveis na base (definir paginação)
 @app.route('/api/v1/books', methods=['GET'])
 def get_books():
     try:
-        books = Book.query.filter_by(availability = 'ok').order_by(Book.title).all()
-        return jsonify([
+        page = request.args.get('page', type=int)
+        books = Book.query.filter_by(availability = 'ok').order_by(Book.title)
+
+        pagination = db.paginate(
+            books,
+            page=page,
+            per_page=20,
+            error_out=False
+        )
+
+        books_on_page = pagination.items
+        book_list = [
             {
                 'Id': book.id,
                 'Title': book.title,
@@ -16,8 +26,21 @@ def get_books():
                 'Availability': book.availability,
                 'Category': book.category,
             }
-            for book in books
-        ]), 200
+            for book in books_on_page
+        ]
+
+        return jsonify(
+            {
+                'items': book_list,
+                'meta': {
+                    'page': pagination.page,
+                    'per_page': pagination.per_page,
+                    'total_pages': pagination.pages,
+                    'has_next': pagination.has_next,
+                    'has_prev': pagination.has_prev
+                }
+            }
+        ), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

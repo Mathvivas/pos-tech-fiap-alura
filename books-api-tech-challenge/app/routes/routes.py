@@ -5,8 +5,23 @@ from models import Book
 # Lista todos os livros disponíveis na base (definir paginação)
 @app.route('/api/v1/books', methods=['GET'])
 def get_books():
-    
-    return 
+    try:
+        # books = db.session.execute(db.select(Book).order_by(Book.title).where(Book.availability == 1)).scalars()
+        books = Book.query.filter_by(availability = 'ok').order_by(Book.title).all()
+        return jsonify([
+            {
+                'Id': book.id,
+                'Title': book.title,
+                'Price': book.price,
+                'Rating': book.rating,
+                'Availability': book.availability,
+                'Category': book.category,
+                'Image': book.image
+            }
+            for book in books
+        ]), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # get /api/v1/books/{id}
 # Retorna detalhes completos de um livro específico pelo ID
@@ -19,8 +34,28 @@ def get_book_detail(book_id):
 # Busca livros por título e/ou categoria
 @app.route('/api/v1/books/search', methods=['GET'])
 def get_book_by_title_or_category_or_both():
+    title = request.args.get('title')
+    category = request.args.get('category')
 
-    return
+    query = Book.query
+    if title:
+        query = query.filter(Book.title.ilike(f'%{title}'))
+    if category:
+        query = query.filter(Book.category.ilike(f'%{category}'))
+
+    books = query.all()
+    return jsonify([
+        {
+            'Id': book.id,
+            'Title': book.title,
+            'Price': book.price,
+            'Rating': book.rating,
+            'Availability': book.availability,
+            'Category': book.category,
+            'Image': book.image
+        }
+        for book in books
+    ])
 
 # get /api/v1/categories
 # Lista todas as categorias de livros disponíveis

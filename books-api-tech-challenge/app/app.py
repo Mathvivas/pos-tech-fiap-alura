@@ -16,6 +16,8 @@ def import_csv_to_db():
         engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
         df.to_sql('books', engine, if_exists='replace', index=False)
 
+from routes import *
+
 if __name__ == '__main__':
     import_csv_to_db()
     app.run(debug=True)

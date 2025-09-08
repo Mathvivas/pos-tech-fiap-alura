@@ -1,6 +1,8 @@
 from flask import request, jsonify
 from app import app, db
 from models import Book
+from sqlalchemy import func
+import json
 
 # Lista todos os livros disponíveis na base (definir paginação)
 @app.route('/api/v1/books', methods=['GET'])
@@ -100,3 +102,64 @@ def check_system():
         return jsonify({'status': 'OK', 'message': 'API está operacional e conectada ao banco de dados.'}), 200
     except Exception as e:
         return jsonify({'status': 'ERROR', 'message': f'Falha na verificação: {str(e)}'}), 503
+
+# Estatísticas gerais da coleção (total de livros, preço médio, distribuição de ratings)    
+@app.route('/api/v1/stats/overview', methods=['GET'])
+def get_overview():
+    total_books = Book.query.count()
+    avg_price = db.session.query(func.round(func.avg(Book.price), 2)).scalar()
+    rating_distribution = db.session.query(Book.rating, func.count(Book.rating)).group_by(Book.rating).all()
+    return jsonify({
+        'Total de Livros': total_books,
+        'Preço Médio': f'R$ {avg_price}',
+        'Distribuição de Notas': json.dumps(dict(rating_distribution)) # variável sozinha retorna um Objeto Row
+    }), 200
+
+# Estatísticas detalhadas por categoria (quantidade de livros por categoria, preços por categoria)
+@app.route('/api/v1/stats/categories', methods=['GET'])
+def get_category_stats():
+    total_books_per_category = db.session.query(Book.category, func.count(Book.category)).group_by(Book.category).all()
+    price_per_category = db.session.query(Book.category, func.round(func.avg(Book.price), 2)).group_by(Book.category).all()
+    return jsonify({
+        'Total de Livros por Categoria': json.dumps(dict(total_books_per_category)),
+        'Preço por Categoria': json.dumps(dict(price_per_category))
+    }), 200
+
+# Lista os livros com melhor avaliação (rating mais alto)
+@app.route('/api/v1/books/top-rated', methods=['GET'])
+def get_rop_rated_books():
+    top_rated = Book.query.filter_by(rating = 'Five').all()
+    return jsonify([
+        {
+        'Título': top.title,
+        'Nota': top.rating,
+        'Disponibilidade': top.availability
+        }
+        for top in top_rated
+    ]), 200
+
+# Filtra livros dentro de uma faixa de preço específica
+@app.route('/api/v1/books/price-range', methods=['GET'])
+def get_price_ranged_books():
+    min = request.args.get('min', type=float)
+    max = request.args.get('max', type=float)
+
+    query = Book.query
+    if min is not None:
+        query = query.filter(Book.price >= min)
+    if max is not None:
+        query = query.filter(Book.price <= max)
+
+    books = query.all()
+    return jsonify([
+        {
+            'Id': book.id,
+            'Title': book.title,
+            'Price': book.price,
+            'Rating': book.rating,
+            'Availability': book.availability,
+            'Category': book.category,
+            'Image': book.image
+        }
+        for book in books
+    ])

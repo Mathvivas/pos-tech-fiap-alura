@@ -3,11 +3,14 @@ from models import db
 import pandas as pd
 from sqlalchemy import create_engine
 from models import Book
+from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)
 app.config.from_object('config')
 
 db.init_app(app)
+
+jwt = JWTManager(app)
 
 def import_csv_to_db():
     with app.app_context():

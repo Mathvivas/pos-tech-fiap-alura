@@ -1,8 +1,12 @@
 from flask import request, jsonify
 from app import app, db
-from models import Book
+from models import Book, User
 from sqlalchemy import func
 import json
+from flask_jwt_extended import (
+    create_access_token,
+    jwt_required, get_jwt_identity
+)
 
 # Lista todos os livros disponíveis na base (definir paginação)
 @app.route('/api/v1/books', methods=['GET'])
@@ -163,3 +167,40 @@ def get_price_ranged_books():
         }
         for book in books
     ])
+
+@app.route('/api/v1/auth/register', methods=['POST'])
+def register_user():
+    data = request.get_json()
+    if User.query.filter_by(username=data['username']).first():
+        return jsonify({'error': 'Usuário já existe'}), 400
+
+    is_strong, messages = User.check_password_strength(data['password'])
+
+    if not is_strong:
+        return jsonify({'sucesso': False, 'errors': messages}), 400
+
+    password = User.set_password(password=data['password'])
+    new_user = User(username=data['username'], password=password)
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({'msg': 'Usuário criado'}), 201
+
+@app.route('/api/v1/auth/login', methods=['POST'])
+def get_token():
+    try:
+        data = request.get_json()
+        user = User.query.filter_by(username=data['username']).first()
+        password = User.check_password(username=data['username'], password=data['password'])
+        if user and password:
+            token = create_access_token(identity=str(user.id))
+            return jsonify({'access_token': token}), 201
+    except:
+        return jsonify({'error': 'Credenciais inválidas.'}), 401
+
+# @app.route('/api/v1/auth/refresh', methods=['GET'])
+# def refresh_token():
+#     current_user_id = get_jwt_identity()
+#     if current_user_id:
+#         token = create_access_token(identity=str(current_user_id))
+#         return jsonify({'token': token}), 200
+#     return jsonify({'msg': 'Usuário desconectado, faça login.'})

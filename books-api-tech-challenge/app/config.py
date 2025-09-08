@@ -13,3 +13,5 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 APP_FOLDER = Path(__file__).parent
 
 CSV_FILE_PATH = APP_FOLDER.parent / "data" / "books.csv"
+
+JWT_SECRET_KEY = 'secret_key'

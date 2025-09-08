@@ -12,12 +12,17 @@ jsonschema==4.25.1
 jsonschema-specifications==2025.4.1
 MarkupSafe==3.0.2
 mistune==3.1.4
+numpy==2.3.2
 packaging==25.0
+pandas==2.3.2
 PyJWT==2.10.1
+python-dateutil==2.9.0.post0
+pytz==2025.2
 PyYAML==6.0.2
 referencing==0.36.2
 rpds-py==0.27.1
 six==1.17.0
 SQLAlchemy==2.0.43
 typing_extensions==4.15.0
+tzdata==2025.2
 Werkzeug==3.1.3

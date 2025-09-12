@@ -4,12 +4,14 @@ import pandas as pd
 from sqlalchemy import create_engine
 from models import Book
 from flask_jwt_extended import JWTManager
+from flasgger import Swagger
 
 app = Flask(__name__)
 app.config.from_object('config')
 
 db.init_app(app)
 
+swagger = Swagger(app)
 jwt = JWTManager(app)
 
 def import_csv_to_db():

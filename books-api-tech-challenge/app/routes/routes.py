@@ -8,6 +8,8 @@ from flask_jwt_extended import (
     jwt_required, get_jwt_identity
 )
 
+app.json.ensure_ascii = False
+
 # Lista todos os livros disponíveis na base (definir paginação)
 @app.route('/api/v1/books', methods=['GET'])
 @jwt_required()

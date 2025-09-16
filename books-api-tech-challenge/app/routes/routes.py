@@ -385,10 +385,24 @@ def get_token():
     except:
         return jsonify({'error': 'Credenciais inválidas.'}), 401
 
-# @app.route('/api/v1/auth/refresh', methods=['GET'])
-# def refresh_token():
-#     current_user_id = get_jwt_identity()
-#     if current_user_id:
-#         token = create_access_token(identity=str(current_user_id))
-#         return jsonify({'token': token}), 200
-#     return jsonify({'msg': 'Usuário desconectado, faça login.'})
+@app.route('/api/v1/auth/refresh', methods=['POST'])
+@jwt_required()
+def refresh_token():
+    """
+    Atualiza o token prestes a expirar.
+    ---
+    security:
+      - BearerToken: []
+        responses:
+            200:
+                description: Token atualizado
+            401:
+                description: Credenciais inválidas
+    """
+    try:
+        current_user_id = get_jwt_identity()
+        if current_user_id:
+            token = create_access_token(identity=str(current_user_id))
+            return jsonify({'access_token': token}), 200
+    except:
+        return jsonify({'error': 'Usuário desconectado, faça login.'}), 401

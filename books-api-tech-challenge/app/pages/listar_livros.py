@@ -20,8 +20,8 @@ with tab1:
     indice = st.text_input('Digitar o id de um livro específico para saber os detalhes (não obrigatório):')
 
     get_livros = st.button('Listar', key='listar_1')
+    token = st.session_state['token']
     if get_livros and not indice:
-        token = st.session_state['token']
         headers = {'Authorization': f'Bearer {token}'}
         response = requests.get('http://localhost:5000/api/v1/books', headers=headers)
 

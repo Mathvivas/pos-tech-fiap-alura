@@ -195,13 +195,13 @@ def check_system():
 @jwt_required()
 def get_overview():
     """
-    Lista livros com filtros de título e/ou categoria.
+    Lista estatísticas gerais da coleção (total de livros, preço médio, distribuição de notas).
     ---
     security:
       - BearerToken: []
         responses:
             200:
-                description: Livros obtidos com sucesso
+                description: Estatísticas obtidas com sucesso
             401:
                 description: Token não fornecido ou inválido
     """

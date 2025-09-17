@@ -15,19 +15,19 @@ st.set_page_config(
 
 pages = {
     'Web Scraping': [
-        st.Page('pages/web_scraping.py', title='Web Scraping')
+        st.Page('pages/web_scraping.py', title='Web Scraping', icon=':material/tools_power_drill:')
     ],
     'Livros': [
-        st.Page('pages/listar_livros.py', title='Listar Livros')
+        st.Page('pages/listar_livros.py', title='Listar Livros', icon=':material/book_2:')
     ],
     'Categorias': [
-        st.Page('pages/listar_categorias.py', title='Listar Categorias')
+        st.Page('pages/listar_categorias.py', title='Listar Categorias', icon=':material/category:')
     ],
     'Estatísticas': [
-        st.Page('pages/estatisticas.py', title='Estatísticas')
+        st.Page('pages/estatisticas.py', title='Estatísticas', icon=':material/bar_chart:')
     ],
     'Status': [
-        st.Page('pages/status.py', title='Status')
+        st.Page('pages/status.py', title='Status', icon=':material/signal_cellular_alt:')
     ]
 }
 
@@ -77,7 +77,7 @@ with st.sidebar:
                     st.error(response_login.text)
 
         with st.expander('Token', icon=':material/token:'):
-            token = st.text_input('Cole o token aqui:')
+            token = st.text_input('Cole o token aqui:', type='password')
             st.session_state['token'] = token
 
             atualizar = st.button('Renovar token prestes a expirar')

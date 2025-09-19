@@ -137,22 +137,35 @@ with tab2:
 
     get_livros = st.button('Listar', key='listar_2')
     if get_livros:
-        token = st.session_state['token']
-        headers = {'Authorization': f'Bearer {token}'}
-        if not titulo and not categoria:
-            st.error('Título ou Categoria deve ser preenchido')
-        else:
-            if titulo and not categoria:
-                response = requests.get(f'http://localhost:5000/api/v1/books/search?title={titulo}', headers=headers)
-            elif categoria and not titulo:
-                response = requests.get(f'http://localhost:5000/api/v1/books/search?category={categoria}', headers=headers)
+        try:
+            token = st.session_state['token']
+            headers = {'Authorization': f'Bearer {token}'}
+            if not titulo and not categoria:
+                st.error('Título ou Categoria deve ser preenchido')
             else:
-                response = requests.get(f'http://localhost:5000/api/v1/books/search?title={titulo}&category={categoria}', headers=headers)
+                if titulo and not categoria:
+                    response = requests.get(f'http://localhost:5000/api/v1/books/search?title={titulo}', headers=headers)
+                elif categoria and not titulo:
+                    response = requests.get(f'http://localhost:5000/api/v1/books/search?category={categoria}', headers=headers)
+                else:
+                    response = requests.get(f'http://localhost:5000/api/v1/books/search?title={titulo}&category={categoria}', headers=headers)
 
-            if response.status_code == 200:
-                st.text(response.text)
-            else:
-                st.error(response.text)
+                if response.status_code == 200:
+                    dados = response.json()
+                    df = pd.DataFrame(dados)
+                    df = df.rename(columns={
+                        'Title': 'Título',
+                        'Id': 'Id',
+                        'Category': 'Categoria',
+                        'Price': 'Preço',
+                        'Rating': 'Nota',
+                        'Availability': 'Disponibilidade',
+                    })
+                    st.dataframe(df)
+                else:
+                    st.error(f'Erro ao buscar livro: {response.text}')
+        except Exception as e:
+                st.error(f'Ocorreu um erro ao conectar à API: {e}')
 
 
 with tab3:

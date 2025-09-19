@@ -125,7 +125,6 @@ def get_book_by_title_or_category_or_both():
             'Title': book.title,
             'Price': book.price,
             'Rating': book.rating,
-            'Availability': book.availability,
             'Category': book.category
         }
         for book in books
@@ -232,8 +231,7 @@ def get_rop_rated_books():
     return jsonify([
         {
         'Título': top.title,
-        'Nota': top.rating,
-        'Disponibilidade': top.availability
+        'Nota': top.rating
         }
         for top in top_rated
     ]), 200
@@ -286,9 +284,7 @@ def get_price_ranged_books():
             'Title': book.title,
             'Price': book.price,
             'Rating': book.rating,
-            'Availability': book.availability,
-            'Category': book.category,
-            'Image': book.image
+            'Category': book.category
         }
         for book in books
     ]), 200

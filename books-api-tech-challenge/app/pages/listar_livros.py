@@ -161,7 +161,9 @@ with tab2:
                         'Rating': 'Nota',
                         'Availability': 'Disponibilidade',
                     })
-                    st.dataframe(df)
+                    st.dataframe(df, column_config={
+                        'Preço': st.column_config.NumberColumn(format='R$%.2f')
+                    })
                 else:
                     st.error(f'Erro ao buscar livro: {response.text}')
         except Exception as e:
@@ -175,33 +177,57 @@ with tab3:
 
     get_livros = st.button('Listar', key='listar_3')
     if get_livros:
-        token = st.session_state['token']
-        headers = {'Authorization': f'Bearer {token}'}
-        if not min and not max:
-            st.error('Preço mínimo ou preço máximo deve ser preenchido')
-        else:
-            if min and not max:
-                response = requests.get(f'http://localhost:5000/api/v1/books/price-range?min={min}', headers=headers)
-            elif max and not min:
-                response = requests.get(f'http://localhost:5000/api/v1/books/price-range?max={max}', headers=headers)
+        try:
+            token = st.session_state['token']
+            headers = {'Authorization': f'Bearer {token}'}
+            if not min and not max:
+                st.error('Preço mínimo ou preço máximo deve ser preenchido')
             else:
-                response = requests.get(f'http://localhost:5000/api/v1/books/price-range?min={min}&max={max}', headers=headers)
+                if min and not max:
+                    response = requests.get(f'http://localhost:5000/api/v1/books/price-range?min={min}', headers=headers)
+                elif max and not min:
+                    response = requests.get(f'http://localhost:5000/api/v1/books/price-range?max={max}', headers=headers)
+                else:
+                    response = requests.get(f'http://localhost:5000/api/v1/books/price-range?min={min}&max={max}', headers=headers)
 
-            if response.status_code == 200:
-                st.text(response.text)
-            else:
-                st.error(response.text)
+                if response.status_code == 200:
+                    dados = response.json()
+                    df = pd.DataFrame(dados)
+                    df = df.rename(columns={
+                        'Title': 'Título',
+                        'Id': 'Id',
+                        'Category': 'Categoria',
+                        'Price': 'Preço',
+                        'Rating': 'Nota'
+                    })
+                    st.dataframe(df, column_config={
+                        'Preço': st.column_config.NumberColumn(format='R$%.2f')
+                    })
+                else:
+                    st.error(f'Erro ao buscar livro: {response.text}')
+        except Exception as e:
+                st.error(f'Ocorreu um erro ao conectar à API: {e}')
+            
 
 with tab4:
     st.subheader('Listar Top Livros')
 
     get_livros = st.button('Listar', key='listar_4')
     if get_livros:
-        token = st.session_state['token']
-        headers = {'Authorization': f'Bearer {token}'}
-        response = requests.get('http://localhost:5000/api/v1/books/top-rated', headers=headers)
+        try:
+            token = st.session_state['token']
+            headers = {'Authorization': f'Bearer {token}'}
+            response = requests.get('http://localhost:5000/api/v1/books/top-rated', headers=headers)
 
-        if response.status_code == 200:
-            st.text(response.text)
-        else:
-            st.error(response.text)
+            if response.status_code == 200:
+                dados = response.json()
+                df = pd.DataFrame(dados)
+                df = df.rename(columns={
+                    'Title': 'Título',
+                    'Rating': 'Nota'
+                })
+                st.dataframe(df)
+            else:
+                st.error(f'Erro ao buscar livro: {response.text}')
+        except Exception as e:
+                st.error(f'Ocorreu um erro ao conectar à API: {e}')

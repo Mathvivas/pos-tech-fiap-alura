@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from app import app, db
+from app import app, db, logger
 from models import Book, User
 from sqlalchemy import func
 import json
@@ -27,6 +27,7 @@ def get_books():
             500:
                 description: Erro no servidor
     """
+    logger.info('Chamando rota de listagem de livros.')
     try:
         books = Book.query.filter_by(availability = 'ok').order_by(Book.title).all()
 
@@ -64,6 +65,7 @@ def get_book_detail(book_id):
             401:
                 description: Token não fornecido ou inválido
     """
+    logger.info('Chamando rota de listagem dos detalhes de um livro pelo ID.')
     book = Book.query.get_or_404(book_id, description=f'Não existe livro com o id {book_id}')
     return jsonify([
             {
@@ -105,6 +107,7 @@ def get_book_by_title_or_category_or_both():
             404:
                 description: Não há livros com os filtros definidos
     """
+    logger.info('Chamando rota de listar livros por título ou categoria.')
     title = request.args.get('title')
     category = request.args.get('category')
 
@@ -145,6 +148,7 @@ def get_categories():
             401:
                 description: Token não fornecido ou inválido
     """
+    logger.info('Chamando rota de listar categorias')
     categories = Book.query.with_entities(Book.category).distinct().all()
     return [category[0] for category in categories]
 
@@ -160,6 +164,7 @@ def check_system():
             503:
                 description: Falha na verificação
     """
+    logger.info('Chamando rota de verificação do status da API e conectividade com o banco.')
     try:
         Book.query.filter_by(availability = 'ok').order_by(Book.title).first()
         return jsonify({'status': 'OK', 'message': 'API está operacional e conectada ao banco de dados.'}), 200
@@ -181,6 +186,7 @@ def get_overview():
             401:
                 description: Token não fornecido ou inválido
     """
+    logger.info('Chamando rota de verificação de estatísticas.')
     total_books = Book.query.count()
     avg_price = db.session.query(func.round(func.avg(Book.price), 2)).scalar()
     rating_distribution = db.session.query(Book.rating, func.count(Book.rating)).group_by(Book.rating).all()
@@ -205,6 +211,7 @@ def get_category_stats():
             401:
                 description: Token não fornecido ou inválido
     """
+    logger.info('Chamando rota de verificação de estatísticas por categoria.')
     total_books_per_category = db.session.query(Book.category, func.count(Book.category)).group_by(Book.category).all()
     price_per_category = db.session.query(Book.category, func.round(func.avg(Book.price), 2)).group_by(Book.category).all()
     return jsonify({
@@ -227,6 +234,7 @@ def get_rop_rated_books():
             401:
                 description: Token não fornecido ou inválido
     """
+    logger.info('Chamando rota de listagem de livros com melhor avaliação.')
     top_rated = Book.query.filter_by(rating = 'Five').all()
     return jsonify([
         {
@@ -264,6 +272,7 @@ def get_price_ranged_books():
             404:
                 description: Não há livros na faixa de preço definida
     """
+    logger.info('Chamando rota de filtragem de livros por intervalo de preços.')
     min = request.args.get('min', type=float)
     max = request.args.get('max', type=float)
 
@@ -311,6 +320,7 @@ def register_user():
             400:
                 description: Usuário já existe
     """
+    logger.info('Chamando rota de registro de usuário.')
     data = request.get_json()
     if User.query.filter_by(username=data['username']).first():
         return jsonify({'error': 'Usuário já existe'}), 400
@@ -348,6 +358,7 @@ def get_token():
             400:
                 description: Credenciais inválidas
     """
+    logger.info('Chamando rota de login e recebimento de token.')
     try:
         data = request.get_json()
         user = User.query.filter_by(username=data['username']).first()
@@ -372,6 +383,7 @@ def refresh_token():
             401:
                 description: Credenciais inválidas
     """
+    logger.info('Chamando rota de atualização de token.')
     try:
         current_user_id = get_jwt_identity()
         if current_user_id:

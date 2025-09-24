@@ -1,7 +1,6 @@
 import requests
 import streamlit as st
 from app import app
-import json
 import pandas as pd
 
 app.config.from_object('config')

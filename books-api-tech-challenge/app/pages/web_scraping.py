@@ -1,6 +1,6 @@
 import requests
 import streamlit as st
-from app import app, db
+from app import app, db, logger
 from sqlalchemy import create_engine
 from models import Book
 import pandas as pd
@@ -19,6 +19,7 @@ st.set_page_config(
 ### Funções usadas para o web scraping
 
 def get_category_description(url: str):
+    logger.debug('Entrando na função de pegar categoria e descrição.')
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -38,6 +39,7 @@ def get_details() -> list:
     Returns:
         list: Uma lista de dicionários com os detalhes de cada livro.
     """
+    logger.debug('Entrando na função de pegar detalhes dos livros.')
     book_data = []
     url_books = 'https://books.toscrape.com/'
     url_raiz = 'https://books.toscrape.com/catalogue/'

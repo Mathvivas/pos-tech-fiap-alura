@@ -10,7 +10,8 @@ app.config.from_object('config')
 logging.basicConfig(filename='logging.info',
                     level=logging.INFO, 
                     format='%(asctime)s - %(levelname)s - %(message)s',
-                    datefmt='%d-%m-%Y %H:%M:%S')
+                    datefmt='%d-%m-%Y %H:%M:%S', 
+                    filemode='w')
 
 logger = logging.getLogger()
 

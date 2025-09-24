@@ -2,7 +2,7 @@ import requests
 import streamlit as st
 from app import app
 import pandas as pd
-import time
+import datetime
 
 app.config.from_object('config')
 app.json.ensure_ascii = False
@@ -27,9 +27,17 @@ pages = {
         st.Page('pages/estatisticas.py', title='Estatísticas', icon=':material/bar_chart:')
     ],
     'Status': [
-        st.Page('pages/status.py', title='Status', icon=':material/signal_cellular_alt:')
+        st.Page('pages/status.py', title='Status', icon=':material/android_wifi_3_bar:')
+    ],
+    'Métricas': [
+        st.Page('pages/metrics.py', title='Métricas', icon=':material/signal_cellular_alt:')
     ]
 }
+
+def setar_metrica():
+    st.session_state['metric'] += 1
+    new_row = pd.DataFrame([{'Time': datetime.datetime.now(), 'Metric': st.session_state.metric}])
+    st.session_state.history = pd.concat([st.session_state.history, new_row], ignore_index=True)
 
 pg = st.navigation(pages, position='top')
 pg.run()

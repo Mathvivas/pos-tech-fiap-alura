@@ -2,6 +2,7 @@ import requests
 import streamlit as st
 from app import app
 import pandas as pd
+from streamlit_app import setar_metrica
 
 app.config.from_object('config')
 app.json.ensure_ascii = False
@@ -46,88 +47,91 @@ with tab1:
     if get_livros and not indice:
         st.session_state['fetch_data'] = True
 
+    # If exists, returns the value, if not, returns the default value
     if st.session_state.get('fetch_data', default=False):
-        if 'token' not in st.session_state:
+        if 'token' not in st.session_state or st.session_state.token == '':
             st.error('Token de autenticação não encontrado. Por favor, faça login.')
             st.session_state['fetch_data'] = False
         else:
             token = st.session_state['token']
 
-        if indice:
-            try:
-                headers = {'Authorization': f'Bearer {token}'}
-                response = requests.get(f'http://localhost:5000/api/v1/books/{indice}', headers=headers)
-                if response.status_code == 200:
-                    dados = response.json()
-                    df = pd.DataFrame(dados)
-                    df = df.rename(columns={
-                            'Title': 'Título',
-                            'Id': 'Id',
-                            'Category': 'Categoria',
-                            'Image': 'Imagem',
-                            'Price': 'Preço',
-                            'Rating': 'Nota',
-                            'Availability': 'Disponibilidade',
+            if indice:
+                try:
+                    headers = {'Authorization': f'Bearer {token}'}
+                    response = requests.get(f'http://localhost:5000/api/v1/books/{indice}', headers=headers)
+                    if response.status_code == 200:
+                        setar_metrica()
+                        dados = response.json()
+                        df = pd.DataFrame(dados)
+                        df = df.rename(columns={
+                                'Title': 'Título',
+                                'Id': 'Id',
+                                'Category': 'Categoria',
+                                'Image': 'Imagem',
+                                'Price': 'Preço',
+                                'Rating': 'Nota',
+                                'Availability': 'Disponibilidade',
+                            })
+                        st.dataframe(df, column_config={
+                            'Imagem': st.column_config.ImageColumn(label='Imagem', width=110)
                         })
-                    st.dataframe(df, column_config={
-                        'Imagem': st.column_config.ImageColumn(label='Imagem', width=110)
-                    })
-                else:
-                    st.error(f'Erro ao buscar livro: {response.text}')
-            except Exception as e:
-                st.error(f'Ocorreu um erro ao conectar à API: {e}')
-        else:
-            if 'livros_df' not in st.session_state:
-                dados = get_data(token)
-                if dados:
-                    df = pd.DataFrame(dados)
-                    st.session_state['livros_df'] = df.rename(columns={
-                                                    'Title': 'Título',
-                                                    'Id': 'Id',
-                                                    'Category': 'Categoria',
-                                                    'Price': 'Preço',
-                                                    'Rating': 'Nota',
-                                                    'Availability': 'Disponibilidade',
-                                                    })
-                else:
-                    st.session_state['fetch_data'] = False
-                    st.stop()
+                    else:
+                        st.error(f'Erro ao buscar livro: {response.text}')
+                except Exception as e:
+                    st.error(f'Ocorreu um erro ao conectar à API: {e}')
+            else:
+                if 'livros_df' not in st.session_state:
+                    dados = get_data(token)
+                    if dados:
+                        setar_metrica()
+                        df = pd.DataFrame(dados)
+                        st.session_state['livros_df'] = df.rename(columns={
+                                                        'Title': 'Título',
+                                                        'Id': 'Id',
+                                                        'Category': 'Categoria',
+                                                        'Price': 'Preço',
+                                                        'Rating': 'Nota',
+                                                        'Availability': 'Disponibilidade',
+                                                        })
+                    else:
+                        st.session_state['fetch_data'] = False
+                        st.stop()
 
-            df = st.session_state['livros_df']
+                df = st.session_state['livros_df']
 
-            top_menu = st.columns(3)
-            bottom_menu = st.columns((4, 1, 1))
+                top_menu = st.columns(3)
+                bottom_menu = st.columns((4, 1, 1))
 
-            with top_menu[0]:
-                sort = st.radio('Ordenar Dados?', options=['Sim', 'Não'], horizontal=1, index=1)
-            if sort == 'Sim':
-                with top_menu[1]:
-                    sort_field = st.selectbox('Ordenar Por', options=df.columns)
-                with top_menu[2]:
-                    sort_direction = st.radio('Direção', 
-                                            options=[':material/arrow_upward:', ':material/arrow_downward:'],
-                                            horizontal=True
-                                            )
-                df = df.sort_values(
-                    by=sort_field, ascending=sort_direction == ':material/arrow_upward:', ignore_index=True
-                )
-                    
-            pagination = st.container()
+                with top_menu[0]:
+                    sort = st.radio('Ordenar Dados?', options=['Sim', 'Não'], horizontal=1, index=1)
+                if sort == 'Sim':
+                    with top_menu[1]:
+                        sort_field = st.selectbox('Ordenar Por', options=df.columns)
+                    with top_menu[2]:
+                        sort_direction = st.radio('Direção', 
+                                                options=[':material/arrow_upward:', ':material/arrow_downward:'],
+                                                horizontal=True
+                                                )
+                    df = df.sort_values(
+                        by=sort_field, ascending=sort_direction == ':material/arrow_upward:', ignore_index=True
+                    )
+                        
+                pagination = st.container()
 
-            with bottom_menu[2]:
-                batch_size = st.selectbox('Tamanho', options=[25, 50, 100])
-            with bottom_menu[1]:
-                total_pages = (
-                    int(len(df) / batch_size) if int(len(df) / batch_size) > 0 else 1
-                )
-                current_page = st.number_input(
-                    'Página', min_value=1, max_value=total_pages, step=1
-                )
-            with bottom_menu[0]:
-                st.markdown(f'Página **{current_page}** of **{total_pages}**')
+                with bottom_menu[2]:
+                    batch_size = st.selectbox('Tamanho', options=[25, 50, 100])
+                with bottom_menu[1]:
+                    total_pages = (
+                        int(len(df) / batch_size) if int(len(df) / batch_size) > 0 else 1
+                    )
+                    current_page = st.number_input(
+                        'Página', min_value=1, max_value=total_pages, step=1
+                    )
+                with bottom_menu[0]:
+                    st.markdown(f'Página **{current_page}** of **{total_pages}**')
 
-            pages = split_frame(df, batch_size)
-            pagination.dataframe(data=pages[current_page - 1], use_container_width=True)
+                pages = split_frame(df, batch_size)
+                pagination.dataframe(data=pages[current_page - 1], use_container_width=True)
 
 with tab2:
     st.subheader('Listar Livros por Título ou Categoria')
@@ -150,6 +154,7 @@ with tab2:
                     response = requests.get(f'http://localhost:5000/api/v1/books/search?title={titulo}&category={categoria}', headers=headers)
 
                 if response.status_code == 200:
+                    setar_metrica()
                     dados = response.json()
                     df = pd.DataFrame(dados)
                     df = df.rename(columns={
@@ -190,6 +195,7 @@ with tab3:
                     response = requests.get(f'http://localhost:5000/api/v1/books/price-range?min={min}&max={max}', headers=headers)
 
                 if response.status_code == 200:
+                    setar_metrica()
                     dados = response.json()
                     df = pd.DataFrame(dados)
                     df = df.rename(columns={
@@ -219,6 +225,7 @@ with tab4:
             response = requests.get('http://localhost:5000/api/v1/books/top-rated', headers=headers)
 
             if response.status_code == 200:
+                setar_metrica()
                 dados = response.json()
                 df = pd.DataFrame(dados)
                 df = df.rename(columns={

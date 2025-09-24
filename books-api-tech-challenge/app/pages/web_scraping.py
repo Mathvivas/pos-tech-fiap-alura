@@ -6,6 +6,7 @@ from models import Book
 import pandas as pd
 from bs4 import BeautifulSoup
 import time
+from streamlit_app import setar_metrica
 
 app.config.from_object('config')
 app.json.ensure_ascii = False
@@ -15,6 +16,13 @@ st.set_page_config(
     page_title='Procurando Livro',
     page_icon=':orange_book:'
 )
+
+if 'metric' not in st.session_state:
+    st.session_state['metric'] = 0
+    metric = st.session_state['metric']
+
+if 'history' not in st.session_state:
+    st.session_state['history'] = pd.DataFrame(columns=['Time', 'Metric'])
 
 ### Funções usadas para o web scraping
 
@@ -128,6 +136,7 @@ def import_df_to_db():
 scrap = st.button('Realizar Scraping')
 
 if scrap:
+    setar_metrica()
     df = import_df_to_db()
 
     st.dataframe(data=df, width='content', hide_index=True, column_config={

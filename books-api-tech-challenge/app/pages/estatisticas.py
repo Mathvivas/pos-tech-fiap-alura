@@ -3,6 +3,7 @@ import streamlit as st
 from app import app
 import json
 import pandas as pd
+from streamlit_app import setar_metrica
 
 app.config.from_object('config')
 app.json.ensure_ascii = False
@@ -28,6 +29,7 @@ with tab1:
         response = requests.get('http://localhost:5000/api/v1/stats/overview', headers=headers)
 
         if response.status_code == 200:
+            setar_metrica()
             col1, col2 = st.columns(2)
             dados_json = response.json()
             df = pd.DataFrame.from_dict(json.loads(dados_json.get('Distribuição de Notas')),
@@ -53,6 +55,7 @@ with tab2:
         response = requests.get('http://localhost:5000/api/v1/stats/categories', headers=headers)
 
         if response.status_code == 200:
+            setar_metrica()
             dados_json = response.json()
             df_preco = pd.DataFrame.from_dict(json.loads(dados_json['Preço por Categoria']),
                                               orient='index', columns=['Preço por Categoria'])

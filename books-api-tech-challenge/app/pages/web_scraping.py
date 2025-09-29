@@ -122,18 +122,24 @@ def import_df_to_db():
         db.create_all()
         engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 
-        if Book.query.first():
-            print('Database already contains books. Skipping web scraping.')
-            df = pd.read_sql_query('SELECT * FROM books', engine)
-            return df
+        # if Book.query.first():
+        #     print('Database already contains books. Skipping web scraping.')
+        #     df = pd.read_sql_query('SELECT * FROM books', engine)
+        #     return df
         
         with st.spinner("Pegando os dados do site, deve demorar...", show_time=True):
             book_data = get_details()
             df = pd.DataFrame(book_data)
             df.to_sql('books', engine, if_exists='append', index=False)
+            df.to_csv('../data/books.csv', index=False)
             return df
 
-scrap = st.button('Realizar Scraping')
+buttons = st.columns(2, gap=None, width=500)
+
+with buttons[0]:
+    scrap = st.button('Realizar Scraping', width="stretch")
+with buttons[1]:
+    listar_csv = st.button('Listar Dados pelo CSV Salvo', width="stretch")
 
 if scrap:
     setar_metrica()
@@ -143,6 +149,15 @@ if scrap:
         'price': st.column_config.NumberColumn(format='R$%.2f'),
         'image': st.column_config.ImageColumn(width=110)
     })
+
+if listar_csv:
+    setar_metrica()
+    df = pd.read_csv('../data/books.csv')
+    st.dataframe(data=df, width='content', hide_index=True, column_config={
+        'price': st.column_config.NumberColumn(format='R$%.2f'),
+        'image': st.column_config.ImageColumn(width=110)
+    })
+
 
 st.markdown(
     """

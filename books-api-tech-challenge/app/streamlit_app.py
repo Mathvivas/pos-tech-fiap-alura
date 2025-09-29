@@ -98,3 +98,31 @@ with st.sidebar:
                     st.success(dados_json.get('access_token'))
                 else:
                     st.error([response_atualizar.status_code, response_atualizar.content])
+
+footer="""<style>
+a:link , a:visited{
+color: #00ffff;
+background-color: transparent;
+}
+
+a:hover,  a:active {
+color: red;
+background-color: transparent;
+text-decoration: underline;
+}
+
+.footer {
+position: fixed;
+left: 0;
+bottom: 0;
+width: 100%;
+color: white;
+text-align: center;
+background-color: #0E1117;
+}
+</style>
+<div class="footer">
+<p>Developed with ❤ by <a style='display: block; text-align: center;' href="https://github.com/Mathvivas" target="_blank">Matheus Lopes Vivas</a></p>
+</div>
+"""
+st.markdown(footer,unsafe_allow_html=True)

@@ -391,3 +391,55 @@ def refresh_token():
             return jsonify({'access_token': token}), 200
     except:
         return jsonify({'error': 'Usuário desconectado, faça login.'}), 401
+    
+
+@app.route('/api/v1/ml/features', methods=['GET'])
+def get_features():
+    """
+    Devolve os dados formatados das features
+    ---
+    responses:
+        200:
+            description: Dados formatados das features retornados com sucesso
+        401:
+            description: Token não fornecido ou inválido
+        500:
+            description: Erro no servidor
+    """
+    logger.info('Chamando rota de recebimento dos dados das features.')
+    return
+
+@app.route('/api/v1/ml/training-data', methods=['GET'])
+def get_training_data():
+    """
+    Devolve os dados de treinamento
+    ---
+    responses:
+        200:
+            description: Dados de treinamento retornados com sucesso
+        401:
+            description: Token não fornecido ou inválido
+        500:
+            description: Erro no servidor
+    """
+    logger.info('Chamando rota de recebimento dos dados de treinamento.')
+    return
+
+@app.route('/api/v1/ml/predictions', methods=['POST'])
+@jwt_required()
+def give_predictions():
+    """
+    Devolve predições
+    ---
+    security:
+      - BearerToken: []
+        responses:
+            200:
+                description: Predição retornada com sucesso
+            401:
+                description: Token não fornecido ou inválido
+            500:
+                description: Erro no servidor
+    """
+    logger.info('Chamando rota de predições.')
+    return

@@ -40,6 +40,9 @@ pages = {
     ],
     'Métricas': [
         st.Page('pages/metrics.py', title='Métricas', icon=':material/signal_cellular_alt:')
+    ],
+    'Machine Learning': [
+        st.Page('pages/machine_learning.py', title='Machine Learning', icon=':material/robot_2:')
     ]
 }
 

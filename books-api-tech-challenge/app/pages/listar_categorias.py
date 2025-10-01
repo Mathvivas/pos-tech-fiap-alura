@@ -8,13 +8,6 @@ from streamlit_app import setar_metrica
 app.config.from_object('config')
 app.json.ensure_ascii = False
 
-st.set_page_config(
-    page_title='Procurando Livro',
-    page_icon=':orange_book:'
-)
-
-st.title('Procurando um Livro? :material/shelves:')
-
 st.header('Listar Categorias')
 
 categ = st.button('Listar categorias')

@@ -10,12 +10,6 @@ from streamlit_app import setar_metrica
 
 app.config.from_object('config')
 app.json.ensure_ascii = False
-# df = pd.read_csv(app.config['CSV_FILE_PATH'])
-
-st.set_page_config(
-    page_title='Procurando Livro',
-    page_icon=':orange_book:'
-)
 
 if 'metric' not in st.session_state:
     st.session_state['metric'] = 0

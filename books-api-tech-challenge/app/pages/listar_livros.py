@@ -7,13 +7,6 @@ from streamlit_app import setar_metrica
 app.config.from_object('config')
 app.json.ensure_ascii = False
 
-st.set_page_config(
-    page_title='Procurando Livro',
-    page_icon=':orange_book:'
-)
-
-st.title('Procurando um Livro? :material/shelves:')
-
 tab1, tab2, tab3, tab4 = st.tabs(['Livros', 'Livros por Título ou Categoria', 'Livros por Intervalo de Preço', 'Top Livros (5 estrelas)'])
 
 with tab1:
@@ -131,7 +124,7 @@ with tab1:
                     st.markdown(f'Página **{current_page}** of **{total_pages}**')
 
                 pages = split_frame(df, batch_size)
-                pagination.dataframe(data=pages[current_page - 1], use_container_width=True)
+                pagination.dataframe(data=pages[current_page - 1], width='stretch')
 
 with tab2:
     st.subheader('Listar Livros por Título ou Categoria')

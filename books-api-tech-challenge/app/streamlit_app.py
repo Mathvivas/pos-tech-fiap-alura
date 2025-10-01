@@ -1,26 +1,27 @@
 import requests
 import streamlit as st
-from app import app
+from app import app, logger
 import pandas as pd
 import datetime
+import threading
+
 
 app.config.from_object('config')
 app.json.ensure_ascii = False
-df = pd.read_csv(app.config['CSV_FILE_PATH'])
+
+@st.cache_resource
+def load_data(file_path):
+    return pd.read_csv(file_path)
+
+def setar_metrica():
+    st.session_state['metric'] += 1
+    new_row = pd.DataFrame([{'Time': datetime.datetime.now(), 'Metric': st.session_state.metric}])
+    st.session_state.history = pd.concat([st.session_state.history, new_row], ignore_index=True)
 
 st.set_page_config(
-    page_title='Procurando Livro',
+    page_title='Books API',
     page_icon=':orange_book:'
 )
-
-st.html("""
-    <style>
-        [alt=Logo] {
-            padding-top: 1rem;
-            height: 10rem;
-        }
-    </style>
-""")
 
 pages = {
     'Web Scraping': [
@@ -46,103 +47,115 @@ pages = {
     ]
 }
 
-def setar_metrica():
-    st.session_state['metric'] += 1
-    new_row = pd.DataFrame([{'Time': datetime.datetime.now(), 'Metric': st.session_state.metric}])
-    st.session_state.history = pd.concat([st.session_state.history, new_row], ignore_index=True)
+if __name__ == '__main__':
+    df = load_data(app.config['CSV_FILE_PATH'])
+    st.session_state['df'] = df
 
-pg = st.navigation(pages, position='top')
-pg.run()
+    logger.info(f'start of streamlit_test, {threading.get_ident()}')
 
-with st.sidebar:
-
-    st.logo('../images/book-logo-nbg.png')
-
-    st.title('API de Livros')
-
-    st.markdown('-----')
-    
-    with st.expander('Usuário', icon=':material/account_box:'):
-        user = st.text_input('Usuário')
-        password = st.text_input('Senha', type='password')
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-            register = st.button('Registrar', icon=':material/person_add:')
-
-        with col2:
-            login = st.button('Login', icon=':material/login:')
-
-        if register:
-            auth = {
-                'username': user,
-                'password': password
+    st.html("""
+        <style>
+            [alt=Logo] {
+                padding-top: 1rem;
+                height: 10rem;
             }
+        </style>
+    """)
 
-            response_register = requests.post('http://localhost:5000/api/v1/auth/register', json=auth)
+    with st.sidebar:
 
-            if response_register.status_code == 201:
-                st.success(response_register.text)
-            else:
-                st.error(response_register.text)
+        st.logo('../images/book-logo-nbg.png')
 
-        if login:
-            auth = {
-                'username': user,
-                'password': password
-            }
+        st.title('API de Livros')
 
-            response_login = requests.post('http://localhost:5000/api/v1/auth/login', json=auth)
+        st.markdown('-----')
+        
+        with st.expander('Usuário', icon=':material/account_box:'):
+            user = st.text_input('Usuário')
+            password = st.text_input('Senha', type='password')
 
-            if response_login.status_code == 201:
-                dados_json = response_login.json()
-                st.success('Token: ' + dados_json.get('access_token'))
-            else:
-                st.error(response_login.text)
+            col1, col2 = st.columns(2)
 
-    with st.expander('Token', icon=':material/token:'):
-        token = st.text_input('Cole o token aqui:', type='password')
-        st.session_state['token'] = token
+            with col1:
+                register = st.button('Registrar', icon=':material/person_add:')
 
-        atualizar = st.button('Renovar token prestes a expirar')
-        if atualizar:
-            header = {'Authorization': f'Bearer {token}'}
-            response_atualizar = requests.post('http://localhost:5000/api/v1/auth/refresh', headers=header)
+            with col2:
+                login = st.button('Login', icon=':material/login:')
 
-            if response_atualizar.status_code == 200:
-                dados_json = response_atualizar.json()
-                st.success(dados_json.get('access_token'))
-            else:
-                st.error([response_atualizar.status_code, response_atualizar.content])
+            if register:
+                auth = {
+                    'username': user,
+                    'password': password
+                }
 
-    st.markdown('-----')
-    st.page_link("http://localhost:5000/apidocs/", label="Documentação", icon=':material/docs:')
+                response_register = requests.post('http://localhost:5000/api/v1/auth/register', json=auth)
 
-footer="""<style>
-a:link , a:visited{
-color: #00ffff;
-background-color: transparent;
-}
+                if response_register.status_code == 201:
+                    st.success(response_register.text)
+                else:
+                    st.error(response_register.text)
 
-a:hover,  a:active {
-color: red;
-background-color: transparent;
-text-decoration: underline;
-}
+            if login:
+                auth = {
+                    'username': user,
+                    'password': password
+                }
 
-.footer {
-position: fixed;
-left: 0;
-bottom: 0;
-width: 100%;
-color: white;
-text-align: center;
-background-color: #0E1117;
-}
-</style>
-<div class="footer">
-<p>Developed by <a style='display: block; text-align: center;' href="https://github.com/Mathvivas" target="_blank">Matheus Lopes Vivas</a></p>
-</div>
-"""
-st.markdown(footer,unsafe_allow_html=True)
+                response_login = requests.post('http://localhost:5000/api/v1/auth/login', json=auth)
+
+                if response_login.status_code == 201:
+                    dados_json = response_login.json()
+                    st.success('Token: ' + dados_json.get('access_token'))
+                else:
+                    st.error(response_login.text)
+
+        with st.expander('Token', icon=':material/token:'):
+            token = st.text_input('Cole o token aqui:', type='password')
+            st.session_state['token'] = token
+
+            atualizar = st.button('Renovar token prestes a expirar')
+            if atualizar:
+                header = {'Authorization': f'Bearer {token}'}
+                response_atualizar = requests.post('http://localhost:5000/api/v1/auth/refresh', headers=header)
+
+                if response_atualizar.status_code == 200:
+                    dados_json = response_atualizar.json()
+                    st.success(dados_json.get('access_token'))
+                else:
+                    st.error([response_atualizar.status_code, response_atualizar.content])
+
+        st.markdown('-----')
+        st.page_link("http://localhost:5000/apidocs/", label="Documentação", icon=':material/docs:')
+
+    footer="""<style>
+    a:link , a:visited{
+    color: #00ffff;
+    background-color: transparent;
+    }
+
+    a:hover,  a:active {
+    color: red;
+    background-color: transparent;
+    text-decoration: underline;
+    }
+
+    .footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    color: white;
+    text-align: center;
+    background-color: #0E1117;
+    z-index: 1;
+    }
+    </style>
+    <div class="footer">
+    <p>Developed by <a style='display: block; text-align: center;' href="https://github.com/Mathvivas" target="_blank">Matheus Lopes Vivas</a></p>
+    </div>
+    """
+
+    st.html(footer)
+
+    pg = st.navigation(pages, position='top')
+    pg.run()

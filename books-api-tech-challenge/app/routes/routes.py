@@ -2,6 +2,7 @@ from flask import request, jsonify
 from app import app, db, logger
 from models import Book, User
 from sqlalchemy import func
+from data_cleaning import data_cleaning, split_data
 import json
 from flask_jwt_extended import (
     create_access_token,
@@ -407,7 +408,9 @@ def get_features():
             description: Erro no servidor
     """
     logger.info('Chamando rota de recebimento dos dados das features.')
-    return
+    data = Book.query.all()
+    data = data_cleaning(data)
+    return data
 
 @app.route('/api/v1/ml/training-data', methods=['GET'])
 def get_training_data():

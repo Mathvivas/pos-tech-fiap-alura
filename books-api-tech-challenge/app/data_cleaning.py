@@ -1,6 +1,6 @@
 import pandas as pd
-import numpy
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.model_selection import train_test_split
 
 def nota(coluna):
     if 'One' in coluna:
@@ -46,3 +46,10 @@ def data_cleaning(csv_path):
     return data_ml
 
 
+def split_data(data):
+    y = data['price']
+    X = data.drop(columns=['price'])
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, random_state=42
+    )
+    return X_train, X_test, y_train, y_test

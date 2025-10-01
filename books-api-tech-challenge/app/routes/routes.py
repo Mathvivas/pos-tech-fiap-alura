@@ -18,6 +18,8 @@ def get_books():
     """
     Lista todos os livros que estão disponíveis.
     ---
+    tags:
+      - Livro
     security:
       - BearerToken: []
         responses:
@@ -53,6 +55,8 @@ def get_book_detail(book_id):
     """
     Lista os detalhes completos de um livro específico pelo ID.
     ---
+    tags:
+      - Livro
     security:
       - BearerToken: []
     parameters:
@@ -87,6 +91,8 @@ def get_book_by_title_or_category_or_both():
     """
     Lista livros com filtros de título e/ou categoria.
     ---
+    tags:
+      - Livro
     security:
       - BearerToken: []
     parameters:
@@ -141,6 +147,8 @@ def get_categories():
     """
     Lista todos as categorias.
     ---
+    tags:
+      - Categoria
     security:
       - BearerToken: []
         responses:
@@ -159,11 +167,13 @@ def check_system():
     """
     Verifica o status da API e a conectividade com os dados.
     ---
-        responses:
-            200:
-                description: API está operacional e conectada ao banco de dados
-            503:
-                description: Falha na verificação
+    tags:
+      - Status
+    responses:
+        200:
+            description: API está operacional e conectada ao banco de dados
+        503:
+            description: Falha na verificação
     """
     logger.info('Chamando rota de verificação do status da API e conectividade com o banco.')
     try:
@@ -179,6 +189,8 @@ def get_overview():
     """
     Lista estatísticas gerais da coleção (total de livros, preço médio, distribuição de notas).
     ---
+    tags:
+      - Estatística
     security:
       - BearerToken: []
         responses:
@@ -204,6 +216,8 @@ def get_category_stats():
     """
     Lista estatísticas detalhadas por categoria.
     ---
+    tags:
+      - Estatística
     security:
       - BearerToken: []
         responses:
@@ -227,6 +241,8 @@ def get_rop_rated_books():
     """
     Lista os livros com melhor avaliação.
     ---
+    tags:
+      - Livro
     security:
       - BearerToken: []
         responses:
@@ -252,6 +268,8 @@ def get_price_ranged_books():
     """
     Filtra livros dentro de uma faixa de preço específica.
     ---
+    tags:
+      - Livro
     security:
       - BearerToken: []
     parameters:
@@ -304,6 +322,8 @@ def register_user():
     """
     Registra um novo usuário.
     ---
+    tags:
+      - Autenticação
     parameters:
       - in: body
         name: body
@@ -342,6 +362,8 @@ def get_token():
     """
     Faz login do usuário e recebe um JWT.
     ---
+    tags:
+      - Autenticação
     parameters:
       - in: body
         name: body
@@ -376,6 +398,8 @@ def refresh_token():
     """
     Atualiza o token prestes a expirar.
     ---
+    tags:
+      - Autenticação
     security:
       - BearerToken: []
         responses:
@@ -399,6 +423,8 @@ def get_features():
     """
     Devolve os dados formatados das features
     ---
+    tags:
+      - Machine Learning
     responses:
         200:
             description: Dados formatados das features retornados com sucesso
@@ -417,6 +443,8 @@ def get_training_data():
     """
     Devolve os dados de treinamento
     ---
+    tags:
+      - Machine Learning
     responses:
         200:
             description: Dados de treinamento retornados com sucesso
@@ -434,6 +462,8 @@ def give_predictions():
     """
     Devolve predições
     ---
+    tags:
+      - Machine Learning
     security:
       - BearerToken: []
         responses:

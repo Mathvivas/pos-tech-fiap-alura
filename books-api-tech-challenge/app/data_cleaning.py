@@ -22,33 +22,31 @@ def disponibilidade(coluna):
     
 def one_hot_category(data):
     ohe = OneHotEncoder()
-    one_hot_encoded = ohe.fit_transform(data[['category']])
+    one_hot_encoded = ohe.fit_transform(data[['Category']])
     encoded_df = pd.DataFrame(one_hot_encoded.toarray(),
                         columns=ohe.get_feature_names_out())
     dfe = pd.concat([data, encoded_df], axis=1)
-    dfe.drop(columns=['category'], inplace=True)
+    dfe.drop(columns=['Category'], inplace=True)
     return dfe
 
-def data_cleaning(csv_path):
-    data = pd.read_csv(csv_path)
-
-    data['rating'] = data['rating'].apply(nota)
+def data_cleaning(data):
+    data['Rating'] = data['Rating'].apply(nota)
     
-    data['availability_ok'] = data['availability'].apply(disponibilidade)
-    data.drop(columns=['availability'], inplace=True)
+    data['Availability_ok'] = data['Availability'].apply(disponibilidade)
+    data.drop(columns=['Availability'], inplace=True)
 
-    data['price'] = data['price'].astype(float)
+    data['Price'] = data['Price'].astype(float)
 
     data = one_hot_category(data)
 
-    data_ml = data.drop(columns=['title', 'image', 'description'])
+    data_ml = data.drop(columns=['Title', 'Image', 'Description'])
 
     return data_ml
 
 
 def split_data(data):
-    y = data['price']
-    X = data.drop(columns=['price'])
+    y = data['Price']
+    X = data.drop(columns=['Price'])
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42
     )

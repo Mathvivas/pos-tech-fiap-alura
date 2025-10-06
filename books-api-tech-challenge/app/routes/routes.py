@@ -434,9 +434,24 @@ def get_features():
             description: Erro no servidor
     """
     logger.info('Chamando rota de recebimento dos dados das features.')
-    data = Book.query.all()
-    data = data_cleaning(data)
-    return data
+    try:
+        books = Book.query.filter_by(availability = 'ok').order_by(Book.title).all()
+        # books = data_cleaning(books)
+        return jsonify([
+            {
+                'Id': book.id,
+                'Title': book.title,
+                'Price': book.price,
+                'Rating': book.rating,
+                'Image': book.image,
+                'Description': book.description,
+                'Availability': book.availability,
+                'Category': book.category,
+            }
+            for book in books
+        ]), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/v1/ml/training-data', methods=['GET'])
 def get_training_data():
@@ -454,7 +469,23 @@ def get_training_data():
             description: Erro no servidor
     """
     logger.info('Chamando rota de recebimento dos dados de treinamento.')
-    return
+    try:
+        books = Book.query.filter_by(availability = 'ok').order_by(Book.title).all()
+        return jsonify([
+            {
+                'Id': book.id,
+                'Title': book.title,
+                'Price': book.price,
+                'Rating': book.rating,
+                'Image': book.image,
+                'Description': book.description,
+                'Availability': book.availability,
+                'Category': book.category,
+            }
+            for book in books
+        ]), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/v1/ml/predictions', methods=['POST'])
 @jwt_required()

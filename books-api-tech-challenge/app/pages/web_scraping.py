@@ -124,8 +124,8 @@ def import_df_to_db():
         with st.spinner("Pegando os dados do site, deve demorar...", show_time=True):
             book_data = get_details()
             df = pd.DataFrame(book_data)
-            df.to_sql('books', engine, if_exists='append', index=False)
-            df.to_csv('../data/books.csv', index=False)
+            df.to_sql('books', engine, if_exists='replace', index=True, index_label='id')
+            df.to_csv('../data/books.csv', index=True, index_label='id')
             return df
 
 buttons = st.columns(2, gap=None, width=500)

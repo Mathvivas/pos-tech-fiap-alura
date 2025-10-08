@@ -2,7 +2,7 @@ import requests
 import streamlit as st
 from app import app
 import pandas as pd
-from streamlit_app import setar_metrica
+from streamlit_app import setar_metrica, split_frame
 
 app.config.from_object('config')
 app.json.ensure_ascii = False
@@ -16,11 +16,6 @@ with tab1:
 
     get_livros = st.button('Listar', key='listar_1')
 
-    @st.cache_data(show_spinner=False)
-    def split_frame(input_df, rows):
-        df = [input_df.loc[i : i + rows - 1, :] for i in range(0, len(input_df), rows)]
-        return df
-    
     @st.cache_data(show_spinner=False)
     def get_data(token):
         try:
@@ -67,7 +62,7 @@ with tab1:
                             })
                         st.dataframe(df, column_config={
                             'Imagem': st.column_config.ImageColumn(label='Imagem', width=110)
-                        })
+                        }, hide_index=True)
                     else:
                         st.error(f'Erro ao buscar livro: {response.text}')
                 except Exception as e:
@@ -93,7 +88,6 @@ with tab1:
                 df = st.session_state['livros_df']
 
                 top_menu = st.columns(3)
-                bottom_menu = st.columns((4, 1, 1))
 
                 with top_menu[0]:
                     sort = st.radio('Ordenar Dados?', options=['Sim', 'Não'], horizontal=1, index=1)
@@ -108,8 +102,9 @@ with tab1:
                     df = df.sort_values(
                         by=sort_field, ascending=sort_direction == ':material/arrow_upward:', ignore_index=True
                     )
-                        
-                pagination = st.container()
+
+                bottom_menu = st.columns((4, 1, 1))    
+                page_container = st.container()
 
                 with bottom_menu[2]:
                     batch_size = st.selectbox('Tamanho', options=[25, 50, 100])
@@ -124,7 +119,7 @@ with tab1:
                     st.markdown(f'Página **{current_page}** of **{total_pages}**')
 
                 pages = split_frame(df, batch_size)
-                pagination.dataframe(data=pages[current_page - 1], width='stretch')
+                page_container.dataframe(data=pages[current_page - 1], width='stretch', hide_index=True)
 
 with tab2:
     st.subheader('Listar Livros por Título ou Categoria')

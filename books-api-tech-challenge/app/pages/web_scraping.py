@@ -11,13 +11,6 @@ from streamlit_app import setar_metrica
 app.config.from_object('config')
 app.json.ensure_ascii = False
 
-if 'metric' not in st.session_state:
-    st.session_state['metric'] = 0
-    metric = st.session_state['metric']
-
-if 'history' not in st.session_state:
-    st.session_state['history'] = pd.DataFrame(columns=['Time', 'Metric'])
-
 ### Funções usadas para o web scraping
 
 def get_category_description(url: str):

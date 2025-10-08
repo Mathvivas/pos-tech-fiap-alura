@@ -18,6 +18,11 @@ def setar_metrica():
     new_row = pd.DataFrame([{'Time': datetime.datetime.now(), 'Metric': st.session_state.metric}])
     st.session_state.history = pd.concat([st.session_state.history, new_row], ignore_index=True)
 
+@st.cache_data(show_spinner=False)
+def split_frame(input_df, rows):
+    df = [input_df.loc[i : i + rows - 1, :] for i in range(0, len(input_df), rows)]
+    return df
+
 st.set_page_config(
     page_title='Books API',
     page_icon=':orange_book:'
@@ -52,6 +57,13 @@ if __name__ == '__main__':
     st.session_state['df'] = df
 
     logger.info(f'start of streamlit_test, {threading.get_ident()}')
+
+    if 'metric' not in st.session_state:
+        st.session_state['metric'] = 0
+        metric = st.session_state['metric']
+
+    if 'history' not in st.session_state:
+        st.session_state['history'] = pd.DataFrame(columns=['Time', 'Metric'])
 
     st.html("""
         <style>

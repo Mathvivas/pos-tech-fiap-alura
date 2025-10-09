@@ -1,6 +1,13 @@
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
+from nltk.corpus import stopwords
+import re
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sentence_transformers import SentenceTransformer
+import streamlit as st
+import numpy as np
 
 def nota(coluna):
     if 'One' in coluna:
@@ -29,6 +36,19 @@ def one_hot_category(data):
     dfe.drop(columns=['Category'], inplace=True)
     return dfe
 
+def clean_text(text):
+    stop_words = set(stopwords.words('english'))
+    t = re.sub(r'[^a-zA-Z\s]', '', text.lower())
+    return " ".join([w for w in t.split() if w not in stop_words])
+
+def split_data(data):
+    y = data['Price']
+    X = np.array(data['Embeddings'].tolist())
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+    return X_train, X_test, y_train, y_test
+
 def data_cleaning(data):
     data['Rating'] = data['Rating'].apply(nota)
     
@@ -39,15 +59,9 @@ def data_cleaning(data):
 
     data = one_hot_category(data)
 
-    data_ml = data.drop(columns=['Title', 'Image', 'Description'])
+    data['Text'] = data['Title'] + ' ' + data['Description']
+    data['Clean_Text'] = data['Text'].apply(clean_text)
+
+    data_ml = data.drop(columns=['Title', 'Image', 'Description', 'Text', 'Id', 'Clean_Text'])
 
     return data_ml
-
-
-def split_data(data):
-    y = data['Price']
-    X = data.drop(columns=['Price'])
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42
-    )
-    return X_train, X_test, y_train, y_test

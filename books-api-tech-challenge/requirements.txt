@@ -26,6 +26,7 @@ jsonschema-specifications==2025.4.1
 MarkupSafe==3.0.2
 mistune==3.1.4
 narwhals==2.5.0
+nltk==3.9.2
 numpy==2.3.2
 packaging==25.0
 pandas==2.3.2
@@ -39,6 +40,7 @@ python-dateutil==2.9.0.post0
 pytz==2025.2
 PyYAML==6.0.2
 referencing==0.36.2
+regex==2025.9.18
 requests==2.32.0
 rpds-py==0.27.1
 scikit-learn==1.7.2
@@ -52,6 +54,7 @@ tenacity==9.1.2
 threadpoolctl==3.6.0
 toml==0.10.2
 tornado==6.5.2
+tqdm==4.67.1
 typing_extensions==4.15.0
 tzdata==2025.2
 tzlocal==2.0.0

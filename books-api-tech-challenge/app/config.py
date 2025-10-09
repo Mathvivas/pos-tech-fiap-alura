@@ -13,5 +13,6 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 APP_FOLDER = Path(__file__).parent
 
 CSV_FILE_PATH = APP_FOLDER.parent / "data" / "books.csv"
+CSV_FILE_PATH_EMBEDDINGS = APP_FOLDER.parent / "data" / "books_embeddings.csv"
 
 JWT_SECRET_KEY = 'secret_key'

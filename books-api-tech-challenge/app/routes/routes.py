@@ -506,4 +506,8 @@ def give_predictions():
                 description: Erro no servidor
     """
     logger.info('Chamando rota de predições.')
-    return
+    try:
+        dados = request.get_json()
+        return
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

@@ -24,4 +24,4 @@ from routes import *
 
 if __name__ == '__main__':
     logger.info('Aplicação iniciada.')
-    app.run(debug=True)
+    app.run()

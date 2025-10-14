@@ -1,0 +1,33 @@
+# Ignore Python venvs
+venv/
+.venv/
+
+# Ignore Python cache and build files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info
+*.eggs
+build/
+dist/
+
+# Ignore system and IDE files
+.env
+*.log
+.DS_Store
+.idea/
+.vscode/
+*.sqlite3
+app/logging.info
+
+# Ignore git and other local files
+.git/
+.gitignore
+
+# Ignore large folders or temporary data
+tmp/
+*.csv
+*.xlsx
+*.pdf
+*.db

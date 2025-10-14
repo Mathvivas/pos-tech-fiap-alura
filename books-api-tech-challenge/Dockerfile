@@ -1,7 +1,7 @@
 # ==============================
 # BASE IMAGE
 # ==============================
-FROM python:3.11.13
+FROM python:3.11.13-slim
 WORKDIR /app
 
 # ==============================
@@ -17,11 +17,11 @@ COPY . .
 
 # ==============================
 # EXPOSE PORTS
-# Flask will run on :8000
-# Streamlit will run on :5000
+# Flask will run on :5000
+# Streamlit will run on :8000
 # ==============================
-EXPOSE 8000
 EXPOSE 5000
+EXPOSE 8000
 
 # ==============================
 # DEFAULT COMMAND

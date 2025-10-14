@@ -5,7 +5,6 @@ from nltk.corpus import stopwords
 import re
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sentence_transformers import SentenceTransformer
 import streamlit as st
 import numpy as np
 

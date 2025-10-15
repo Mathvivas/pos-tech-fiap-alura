@@ -22,6 +22,9 @@ jwt = JWTManager(app)
 
 from routes import *
 
-if __name__ == '__main__':
+def run_flask():
     logger.info('Aplicação iniciada.')
     app.run()
+
+if __name__ == '__main__':
+    run_flask()

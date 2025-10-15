@@ -4,6 +4,11 @@ import pandas as pd
 import datetime
 import config
 
+st.set_page_config(
+    page_title='Books API',
+    page_icon=':orange_book:'
+)
+
 @st.cache_resource
 def load_data(file_path):
     return pd.read_csv(file_path)
@@ -18,40 +23,26 @@ def split_frame(input_df, rows):
     df = [input_df.loc[i : i + rows - 1, :] for i in range(0, len(input_df), rows)]
     return df
 
-st.set_page_config(
-    page_title='Books API',
-    page_icon=':orange_book:'
-)
-
 @st.cache_resource
 def setup_nltk():
     import nltk
-    nltk.download('stopwords')
-    nltk.download('wordnet')
-    nltk.download('punkt')
-    nltk.download('punkt_tab')
-    nltk.download('averaged_perceptron_tagger_eng')
-    
+    for pkg in ["stopwords", "wordnet", "punkt", "punkt_tab", "averaged_perceptron_tagger_eng"]:
+        nltk.download(pkg, quiet=True)
 
-setup_nltk()
-    
-if 'df' not in st.session_state:
-    df = load_data(config.CSV_FILE_PATH)
-    st.session_state['df'] = df
+def init_session():
+    if 'df' not in st.session_state:
+        df = load_data(config.CSV_FILE_PATH)
+        st.session_state['df'] = df
 
-if 'embeddings' not in st.session_state:
-    df_embeddings = load_data(config.CSV_FILE_PATH_EMBEDDINGS)
-    st.session_state['embeddings'] = df_embeddings
+    if 'metric' not in st.session_state:
+        st.session_state['metric'] = 0
+        metric = st.session_state['metric']
 
-if 'metric' not in st.session_state:
-    st.session_state['metric'] = 0
-    metric = st.session_state['metric']
+    if 'history' not in st.session_state:
+        st.session_state['history'] = pd.DataFrame(columns=['Time', 'Metric'])
 
-if 'history' not in st.session_state:
-    st.session_state['history'] = pd.DataFrame(columns=['Time', 'Metric'])
-
-if 'csv_data' not in st.session_state:
-    st.session_state['csv_data'] = 0
+    if 'csv_data' not in st.session_state:
+        st.session_state['csv_data'] = 0
 
 def sidebar():
 
@@ -123,8 +114,6 @@ def sidebar():
         st.markdown('-----')
         st.page_link("http://localhost:5000/apidocs/", label="Documentação", icon=':material/docs:')
 
-sidebar()
-
 pages = {
     'Web Scraping': [
         st.Page('pages/web_scraping.py', title='Web Scraping', icon=':material/tools_power_drill:')
@@ -177,7 +166,13 @@ z-index: 1;
 </div>
 """
 
-st.html(footer)
+def main():
+    setup_nltk()
+    init_session()
+    sidebar()
+    st.html(footer)
+    pg = st.navigation(pages, position='top')
+    pg.run()
 
-pg = st.navigation(pages, position='top')
-pg.run()
+if __name__ == '__main__':
+    main()

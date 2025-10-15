@@ -114,7 +114,7 @@ def import_df_to_db():
         #     df = pd.read_sql_query('SELECT * FROM books', engine)
         #     return df
         
-        with st.spinner("Pegando os dados do site, deve demorar...", show_time=True):
+        with st.spinner("Pegando os dados do site, deve demorar (~ 30 minutos)...", show_time=True):
             book_data = get_details()
             df = pd.DataFrame(book_data)
             df.to_sql('books', engine, if_exists='replace', index=True, index_label='id')
@@ -126,24 +126,28 @@ buttons = st.columns(2, gap=None, width=500)
 with buttons[0]:
     scrap = st.button('Realizar Scraping', width="stretch")
 with buttons[1]:
-    listar_csv = st.button('Listar Dados pelo CSV Salvo', width="stretch")
+    listar_csv = st.button('Listar Dados pelo CSV', width="stretch")
 
 if scrap:
-    setar_metrica()
     df = import_df_to_db()
 
     st.dataframe(data=df, width='content', hide_index=True, column_config={
         'price': st.column_config.NumberColumn(format='R$%.2f'),
         'image': st.column_config.ImageColumn(width=110)
     })
+    setar_metrica()
+    st.session_state['csv_data'] = 1
 
 if listar_csv:
-    setar_metrica()
-    df = pd.read_csv('../data/books.csv')
-    st.dataframe(data=df, width='content', hide_index=True, column_config={
-        'price': st.column_config.NumberColumn(format='R$%.2f'),
-        'image': st.column_config.ImageColumn(width=110)
-    })
+    if st.session_state['csv_data'] == 0:
+        st.error('Dados inexistentes, por favor, rode o web scraping para preencher o CSV.')
+    else:
+        setar_metrica()
+        df = pd.read_csv('../data/books.csv')
+        st.dataframe(data=df, width='content', hide_index=True, column_config={
+            'price': st.column_config.NumberColumn(format='R$%.2f'),
+            'image': st.column_config.ImageColumn(width=110)
+        })
 
 
 st.markdown(

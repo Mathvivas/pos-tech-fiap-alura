@@ -2,10 +2,13 @@ import pandas as pd
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+from nltk import pos_tag
+from nltk.corpus import wordnet
 import re
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
-import streamlit as st
 import numpy as np
 
 def nota(coluna):
@@ -35,14 +38,42 @@ def one_hot_category(data):
     dfe.drop(columns=['Category'], inplace=True)
     return dfe
 
+def get_wordnet_tag(tag):
+    if tag.startswith('J'):
+        return wordnet.ADJ
+    elif tag.startswith('V'):
+        return wordnet.VERB
+    elif tag.startswith('N'):
+        return wordnet.NOUN
+    elif tag.startswith('R'):
+        return wordnet.ADV
+    else:
+        return wordnet.NOUN
+
 def clean_text(text):
+    # Lowercasing
+    text = text.lower()
+
+    # Remove punctuation and special characters
+    text = re.sub(r'[^a-z\s]', '', text)
+
+    # Tokenization
+    tokens = word_tokenize(text)
+
+    # Removing Stop Words
     stop_words = set(stopwords.words('english'))
-    t = re.sub(r'[^a-zA-Z\s]', '', text.lower())
-    return " ".join([w for w in t.split() if w not in stop_words])
+    filtered_tokens = [token for token in tokens if token not in stop_words]
+
+    # Lemmatization
+    lemmatizer = WordNetLemmatizer()
+    lemmatized_tokens = [lemmatizer.lemmatize(token, get_wordnet_tag(tag))
+                         for token, tag in pos_tag(filtered_tokens)]
+
+    return " ".join(lemmatized_tokens)
 
 def split_data(data):
     y = data['Price']
-    X = np.array(data['Embeddings'].tolist())
+    X = data.drop(columns=['Price'])
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
     )
@@ -61,6 +92,10 @@ def data_cleaning(data):
     data['Text'] = data['Title'] + ' ' + data['Description']
     data['Clean_Text'] = data['Text'].apply(clean_text)
 
-    data_ml = data.drop(columns=['Title', 'Image', 'Description', 'Text', 'Id', 'Clean_Text'])
+    data_ml = data.drop(columns=['Title', 'Image', 'Description', 'Text', 'Id'])
 
     return data_ml
+
+def vetorizar(data):
+    vectorizer = TfidfVectorizer()
+    tfidf_matrix = vectorizer.fit_transform(data['Clean_Text'])

@@ -27,6 +27,11 @@ st.set_page_config(
 def setup_nltk():
     import nltk
     nltk.download('stopwords')
+    nltk.download('wordnet')
+    nltk.download('punkt')
+    nltk.download('punkt_tab')
+    nltk.download('averaged_perceptron_tagger_eng')
+    
 
 setup_nltk()
     
@@ -44,6 +49,9 @@ if 'metric' not in st.session_state:
 
 if 'history' not in st.session_state:
     st.session_state['history'] = pd.DataFrame(columns=['Time', 'Metric'])
+
+if 'csv_data' not in st.session_state:
+    st.session_state['csv_data'] = 0
 
 def sidebar():
 

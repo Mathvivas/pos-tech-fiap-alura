@@ -3,7 +3,8 @@ import streamlit as st
 from app import app
 import pandas as pd
 from streamlit_app import setar_metrica, load_data
-from data_cleaning import data_cleaning, split_data
+from data_cleaning import data_cleaning, split_data, vectorize, find_similar
+import json
 
 app.config.from_object('config')
 app.json.ensure_ascii = False
@@ -24,6 +25,7 @@ with tab1:
                 dados = response.json()
                 df = pd.DataFrame(dados)
                 df = data_cleaning(df)
+                df.drop(columns=['Title'], inplace=True)
                 df = df.rename(columns={
                         'Id': 'Id',
                         'Price': 'Preço',
@@ -69,16 +71,18 @@ with tab3:
                 st.error('Token de autenticação não encontrado. Por favor, faça login.')
             else:
                 token = st.session_state['token']
+            
+            json_query = {
+                'query': query,
+            }
+            headers = {'Authorization': f'Bearer {token}'}
             try:
-                json_query = {
-                    'query': query,
-                }
-                headers = {'Authorization': f'Bearer {token}'}
                 response = requests.post('http://localhost:5000/api/v1/ml/predictions', json=json_query, headers=headers)
                 if response.status_code == 200:
                     setar_metrica()
-                    dados = response
-                    st.dataframe(dados)
+                    dados = json.loads(response.json())
+                    df = pd.DataFrame(dados)
+                    st.dataframe(df)
                 else:
                     st.error(f'Erro ao buscar livros: {response.text}')
             except Exception as e:

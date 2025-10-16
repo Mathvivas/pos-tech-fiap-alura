@@ -24,7 +24,7 @@ from routes import *
 
 def run_flask():
     logger.info('Aplicação iniciada.')
-    app.run()
+    app.run(debug=True)
 
 if __name__ == '__main__':
     run_flask()

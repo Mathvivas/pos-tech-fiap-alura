@@ -2,8 +2,9 @@ from flask import request, jsonify
 from app import app, db, logger
 from models import Book, User
 from sqlalchemy import func
-from data_cleaning import data_cleaning, split_data
+from data_cleaning import data_cleaning, split_data, vectorize, find_similar
 import json
+import pandas as pd
 from flask_jwt_extended import (
     create_access_token,
     jwt_required, get_jwt_identity
@@ -507,7 +508,25 @@ def give_predictions():
     """
     logger.info('Chamando rota de predições.')
     try:
-        dados = request.get_json()
-        return
+        text = request.get_json()['query']
+        books = Book.query.filter_by(availability = 'ok').order_by(Book.title).all()
+        data = [
+            {
+                'Id': book.id,
+                'Title': book.title,
+                'Price': book.price,
+                'Rating': book.rating,
+                'Image': book.image,
+                'Description': book.description,
+                'Availability': book.availability,
+                'Category': book.category,
+            }
+            for book in books
+        ]
+        df = pd.DataFrame(data)
+        df = data_cleaning(df)
+        df, tfidf_matrix, vectorizer = vectorize(df)
+        df_result = find_similar(df, text, vectorizer, tfidf_matrix)
+        return jsonify(df_result.to_json(orient='records')), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

@@ -92,10 +92,21 @@ def data_cleaning(data):
     data['Text'] = data['Title'] + ' ' + data['Description']
     data['Clean_Text'] = data['Text'].apply(clean_text)
 
-    data_ml = data.drop(columns=['Title', 'Image', 'Description', 'Text', 'Id'])
+    data_ml = data.drop(columns=['Image', 'Description', 'Text', 'Id'])
 
     return data_ml
 
-def vetorizar(data):
-    vectorizer = TfidfVectorizer()
+def vectorize(data):
+    vectorizer = TfidfVectorizer(ngram_range=(1, 2))
     tfidf_matrix = vectorizer.fit_transform(data['Clean_Text'])
+    tfidf_df = pd.DataFrame(tfidf_matrix.toarray(), columns=vectorizer.get_feature_names_out())
+    df = pd.concat([data, tfidf_df], axis=1)
+    return df, tfidf_matrix, vectorizer
+
+def find_similar(df, text, vectorizer, tfidf_matrix):
+    vec = vectorizer.transform([text])
+    similarities = cosine_similarity(vec, tfidf_matrix).flatten()
+
+    top3_indices = similarities.argsort()[-3:][::-1]
+
+    return df.iloc[top3_indices][['Title']]

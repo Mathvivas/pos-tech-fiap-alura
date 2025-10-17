@@ -19,24 +19,17 @@ with tab1:
 
     if bt:
         try:
-            response = requests.get('http://localhost:5000/api/v1/ml/features')
-            if response.status_code == 200:
-                setar_metrica()
-                dados = response.json()
-                df = pd.DataFrame(dados)
-                df = data_cleaning(df)
-                df.drop(columns=['Title'], inplace=True)
-                df = df.rename(columns={
-                        'Id': 'Id',
-                        'Price': 'Preço',
-                        'Rating': 'Nota',
-                        'Availability': 'Disponibilidade',
+            with st.spinner("Pegando as features...", show_time=True):
+                response = requests.get('http://localhost:5000/api/v1/ml/features')
+                if response.status_code == 200:
+                    setar_metrica()
+                    dados = json.loads(response.json())
+                    df = pd.DataFrame(dados)
+                    st.dataframe(df, column_config={
+                                'Imagem': st.column_config.ImageColumn(label='Imagem', width=110)
                     })
-                st.dataframe(df, column_config={
-                            'Imagem': st.column_config.ImageColumn(label='Imagem', width=110)
-                })
-            else:
-                st.error(f'Erro ao buscar livros: {response.text}')
+                else:
+                    st.error(f'Erro ao buscar livros: {response.text}')
         except Exception as e:
             st.error(f'Ocorreu um erro ao conectar à API: {e}')
 
@@ -46,46 +39,46 @@ with tab2:
     
     if bt:
         try:
-            response = requests.get('http://localhost:5000/api/v1/ml/training-data')
-            if response.status_code == 200:
-                setar_metrica()
-                dados = response.json()
-                df = pd.DataFrame(dados)
-                df = data_cleaning(df)
-                X_train, _, _, _ = split_data(df)
-                st.dataframe(X_train)
-                st.markdown(f'**Shape dos Dados de Treinamento: {X_train.shape}**')
-            else:
-                st.error(f'Erro ao buscar livros: {response.text}')
+            with st.spinner("Pegando os dados de treinamento...", show_time=True):
+                response = requests.get('http://localhost:5000/api/v1/ml/training-data')
+                if response.status_code == 200:
+                    setar_metrica()
+                    dados = json.loads(response.json())
+                    X_train = pd.DataFrame(dados)
+                    st.dataframe(X_train)
+                    st.markdown(f'**Shape dos Dados de Treinamento: {X_train.shape}**')
+                else:
+                    st.error(f'Erro ao buscar livros: {response.text}')
         except Exception as e:
             st.error(f'Ocorreu um erro ao conectar à API: {e}')
 
 with tab3:
     st.subheader('Predições')
-    query = st.text_input('Digite uma palavra do que busca para obter títulos similares existentes')
+    query = st.text_input('Digite uma palavra (em inglês) do que busca para obter títulos similares existentes')
     bt = st.button('Obter predição')
 
     if bt:
         if query:
-            if 'token' not in st.session_state or st.session_state.token == '':
-                st.error('Token de autenticação não encontrado. Por favor, faça login.')
-            else:
-                token = st.session_state['token']
-            
-            json_query = {
-                'query': query,
-            }
-            headers = {'Authorization': f'Bearer {token}'}
-            try:
-                response = requests.post('http://localhost:5000/api/v1/ml/predictions', json=json_query, headers=headers)
-                if response.status_code == 200:
-                    setar_metrica()
-                    dados = json.loads(response.json())
-                    df = pd.DataFrame(dados)
-                    st.dataframe(df)
+            with st.spinner("Achando similares...", show_time=True):
+                if 'token' not in st.session_state or st.session_state.token == '':
+                    st.error('Token de autenticação não encontrado. Por favor, faça login.')
                 else:
-                    st.error(f'Erro ao buscar livros: {response.text}')
-            except Exception as e:
-                st.error(f'Ocorreu um erro ao conectar à API: {e}')
+                    token = st.session_state['token']
+                
+                    json_query = {
+                        'query': query,
+                    }
+                    headers = {'Authorization': f'Bearer {token}'}
+                    try:
+                        response = requests.post('http://localhost:5000/api/v1/ml/predictions', json=json_query, headers=headers)
+                        if response.status_code == 200:
+                            setar_metrica()
+                            dados = json.loads(response.json())
+                            df = pd.DataFrame(dados)
+                            st.dataframe(df)
+                        else:
+                            st.error(f'Erro ao buscar livros: {response.text}')
+                    except Exception as e:
+                        st.error(f'Ocorreu um erro ao conectar à API: {e}')
         else:
             st.error('Campo deve ser preenchido')

@@ -437,8 +437,7 @@ def get_features():
     logger.info('Chamando rota de recebimento dos dados das features.')
     try:
         books = Book.query.filter_by(availability = 'ok').order_by(Book.title).all()
-        # books = data_cleaning(books)
-        return jsonify([
+        data = [
             {
                 'Id': book.id,
                 'Title': book.title,
@@ -450,7 +449,17 @@ def get_features():
                 'Category': book.category,
             }
             for book in books
-        ]), 200
+        ]
+        df = pd.DataFrame(data)
+        df = data_cleaning(df)
+        df.drop(columns=['Title'], inplace=True)
+        df = df.rename(columns={
+            'Id': 'Id',
+            'Price': 'Preço',
+            'Rating': 'Nota',
+            'Availability': 'Disponibilidade',
+        })
+        return jsonify(df.to_json(orient='records')), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -472,7 +481,7 @@ def get_training_data():
     logger.info('Chamando rota de recebimento dos dados de treinamento.')
     try:
         books = Book.query.filter_by(availability = 'ok').order_by(Book.title).all()
-        return jsonify([
+        data = [
             {
                 'Id': book.id,
                 'Title': book.title,
@@ -484,7 +493,11 @@ def get_training_data():
                 'Category': book.category,
             }
             for book in books
-        ]), 200
+        ]
+        df = pd.DataFrame(data)
+        df = data_cleaning(df)
+        X_train, _, _, _ = split_data(df)
+        return jsonify(X_train.to_json(orient='records')), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

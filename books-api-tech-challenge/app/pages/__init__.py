@@ -1,1 +1,0 @@
-from .web_scraping import import_df_to_db

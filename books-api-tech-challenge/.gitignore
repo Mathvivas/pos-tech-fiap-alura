@@ -1,5 +1,35 @@
 app/logging.info
 
+# 1. Airflow Runtime and System Files
+# The Airflow metadata database (default SQLite)
+airflow.db
+# Airflow Logs
+logs/
+# Airflow Configuration File (contains sensitive data/paths)
+airflow.cfg
+
+# 2. Secrets and Credentials
+# Environment variable files
+.env
+*.key
+*.pem
+secrets/
+
+# 3. Python Environment and Builds
+# Virtual environment folders
+.venv/
+venv/
+# Compiled Python files
+__pycache__/
+*.pyc
+
+# 4. Local Development Files
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+# IDE/Editor files (e.g., VS Code, PyCharm)
+.idea/
+.vscode/
+
 # Created by https://www.toptal.com/developers/gitignore/api/flask
 # Edit at https://www.toptal.com/developers/gitignore?templates=flask
 

@@ -496,7 +496,7 @@ def get_training_data():
         ]
         df = pd.DataFrame(data)
         df = data_cleaning(df)
-        X_train, _, _, _ = split_data(df)
+        X_train = split_data(df)
         return jsonify(X_train.to_json(orient='records')), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

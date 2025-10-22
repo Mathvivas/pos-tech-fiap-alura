@@ -118,7 +118,7 @@ def import_df_to_db():
             book_data = get_details()
             df = pd.DataFrame(book_data)
             df.to_sql('books', engine, if_exists='replace', index=True, index_label='id')
-            df.to_csv('../data/books.csv', index=True, index_label='id')
+            df.to_csv('data/books.csv', index=True, index_label='id')
             return df
 
 buttons = st.columns(2, gap=None, width=500)
@@ -129,7 +129,9 @@ with buttons[1]:
     listar_csv = st.button('Listar Dados pelo CSV', width="stretch")
 
 if scrap:
-    df = import_df_to_db()
+    df_url = import_df_to_db()
+
+    df = pd.read_csv(df_url, index_col='id')
 
     st.dataframe(data=df, width='content', hide_index=True, column_config={
         'price': st.column_config.NumberColumn(format='R$%.2f'),

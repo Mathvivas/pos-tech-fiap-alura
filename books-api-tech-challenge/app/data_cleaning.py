@@ -74,10 +74,10 @@ def clean_text(text):
 def split_data(data):
     y = data['Price']
     X = data.drop(columns=['Price'])
-    X_train, X_test, y_train, y_test = train_test_split(
+    X_train, _, _, _ = train_test_split(
         X, y, test_size=0.2, random_state=42
     )
-    return X_train, X_test, y_train, y_test
+    return X_train
 
 def data_cleaning(data):
     data['Rating'] = data['Rating'].apply(nota)

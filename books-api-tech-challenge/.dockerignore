@@ -31,10 +31,18 @@ tmp/
 *.xlsx
 *.pdf
 *.db
+*.db*
 
 # 1. Airflow Runtime and System Files
 # The Airflow metadata database (default SQLite)
 airflow.db
+airflow.db-shm
+app/airflow/airflow.db-shm
+airflow.db-wal
+app/airflow/airflow.db-wal
+
+airflow/
+app/airflow
 # Airflow Logs
 logs/
 # Airflow Configuration File (contains sensitive data/paths)

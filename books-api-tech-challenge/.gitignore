@@ -3,6 +3,9 @@ app/logging.info
 # 1. Airflow Runtime and System Files
 # The Airflow metadata database (default SQLite)
 airflow.db
+airflow.db-shm
+airflow.db-wal
+*.db*
 # Airflow Logs
 logs/
 # Airflow Configuration File (contains sensitive data/paths)

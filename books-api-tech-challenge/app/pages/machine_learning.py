@@ -5,6 +5,12 @@ import pandas as pd
 from streamlit_app import setar_metrica, load_data
 from data_cleaning import data_cleaning, split_data, vectorize, find_similar
 import json
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+API_URL = os.getenv("API_URL")
 
 app.config.from_object('config')
 app.json.ensure_ascii = False
@@ -20,7 +26,7 @@ with tab1:
     if bt:
         try:
             with st.spinner("Pegando as features...", show_time=True):
-                response = requests.get('http://localhost:5000/api/v1/ml/features')
+                response = requests.get(f'{API_URL}/api/v1/ml/features')
                 if response.status_code == 200:
                     setar_metrica()
                     dados = json.loads(response.json())
@@ -40,7 +46,7 @@ with tab2:
     if bt:
         try:
             with st.spinner("Pegando os dados de treinamento...", show_time=True):
-                response = requests.get('http://localhost:5000/api/v1/ml/training-data')
+                response = requests.get(f'{API_URL}/api/v1/ml/training-data')
                 if response.status_code == 200:
                     setar_metrica()
                     dados = json.loads(response.json())
@@ -70,7 +76,7 @@ with tab3:
                     }
                     headers = {'Authorization': f'Bearer {token}'}
                     try:
-                        response = requests.post('http://localhost:5000/api/v1/ml/predictions', json=json_query, headers=headers)
+                        response = requests.post(f'{API_URL}/api/v1/ml/predictions', json=json_query, headers=headers)
                         if response.status_code == 200:
                             setar_metrica()
                             dados = json.loads(response.json())

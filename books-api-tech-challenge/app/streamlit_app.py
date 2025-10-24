@@ -3,9 +3,15 @@ import streamlit as st
 import pandas as pd
 import datetime
 import config
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+API_URL = os.getenv("API_URL")
 
 st.set_page_config(
-    page_title='Books API',
+    page_title='API de Livros',
     page_icon=':orange_book:'
 )
 
@@ -76,7 +82,7 @@ def sidebar():
                     'username': user,
                     'password': password
                 }
-                response_register = requests.post('http://localhost:5000/api/v1/auth/register', json=auth)
+                response_register = requests.post(f'{API_URL}/api/v1/auth/register', json=auth)
             
                 if response_register.status_code == 201:
                     st.success(response_register.text)
@@ -88,7 +94,7 @@ def sidebar():
                     'password': password
                 }
             
-                response_login = requests.post('http://localhost:5000/api/v1/auth/login', json=auth)
+                response_login = requests.post(f'{API_URL}/api/v1/auth/login', json=auth)
             
                 if response_login.status_code == 201:
                     dados_json = response_login.json()
@@ -103,7 +109,7 @@ def sidebar():
             
             if atualizar:
                 header = {'Authorization': f'Bearer {token}'}
-                response_atualizar = requests.post('http://localhost:5000/api/v1/auth/refresh', headers=header)
+                response_atualizar = requests.post(f'{API_URL}/api/v1/auth/refresh', headers=header)
 
                 if response_atualizar.status_code == 200:
                     dados_json = response_atualizar.json()
@@ -112,7 +118,7 @@ def sidebar():
                     st.error([response_atualizar.status_code, response_atualizar.content])
 
         st.markdown('-----')
-        st.page_link("http://localhost:5000/apidocs/", label="Documentação", icon=':material/docs:')
+        st.page_link(f"{API_URL}/apidocs/", label="Documentação", icon=':material/docs:')
 
 pages = {
     'Web Scraping': [

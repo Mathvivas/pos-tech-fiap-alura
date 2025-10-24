@@ -3,6 +3,12 @@ import streamlit as st
 from app import app
 import pandas as pd
 from streamlit_app import setar_metrica, split_frame
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+API_URL = os.getenv('API_URL')
 
 app.config.from_object('config')
 app.json.ensure_ascii = False
@@ -20,7 +26,7 @@ with tab1:
     def get_data(token):
         try:
             headers = {'Authorization': f'Bearer {token}'}
-            response = requests.get(f'http://localhost:5000/api/v1/books', headers=headers)
+            response = requests.get(f'{API_URL}/api/v1/books', headers=headers)
             response.raise_for_status()
             dados = response.json()
             return dados
@@ -46,7 +52,7 @@ with tab1:
             if indice:
                 try:
                     headers = {'Authorization': f'Bearer {token}'}
-                    response = requests.get(f'http://localhost:5000/api/v1/books/{indice}', headers=headers)
+                    response = requests.get(f'{API_URL}/api/v1/books/{indice}', headers=headers)
                     if response.status_code == 200:
                         setar_metrica()
                         dados = response.json()
@@ -135,11 +141,11 @@ with tab2:
                 st.error('Título ou Categoria deve ser preenchido')
             else:
                 if titulo and not categoria:
-                    response = requests.get(f'http://localhost:5000/api/v1/books/search?title={titulo}', headers=headers)
+                    response = requests.get(f'{API_URL}/api/v1/books/search?title={titulo}', headers=headers)
                 elif categoria and not titulo:
-                    response = requests.get(f'http://localhost:5000/api/v1/books/search?category={categoria}', headers=headers)
+                    response = requests.get(f'{API_URL}/api/v1/books/search?category={categoria}', headers=headers)
                 else:
-                    response = requests.get(f'http://localhost:5000/api/v1/books/search?title={titulo}&category={categoria}', headers=headers)
+                    response = requests.get(f'{API_URL}/api/v1/books/search?title={titulo}&category={categoria}', headers=headers)
 
                 if response.status_code == 200:
                     setar_metrica()
@@ -176,11 +182,11 @@ with tab3:
                 st.error('Preço mínimo ou preço máximo deve ser preenchido')
             else:
                 if min and not max:
-                    response = requests.get(f'http://localhost:5000/api/v1/books/price-range?min={min}', headers=headers)
+                    response = requests.get(f'{API_URL}/api/v1/books/price-range?min={min}', headers=headers)
                 elif max and not min:
-                    response = requests.get(f'http://localhost:5000/api/v1/books/price-range?max={max}', headers=headers)
+                    response = requests.get(f'{API_URL}/api/v1/books/price-range?max={max}', headers=headers)
                 else:
-                    response = requests.get(f'http://localhost:5000/api/v1/books/price-range?min={min}&max={max}', headers=headers)
+                    response = requests.get(f'{API_URL}/api/v1/books/price-range?min={min}&max={max}', headers=headers)
 
                 if response.status_code == 200:
                     setar_metrica()
@@ -210,7 +216,7 @@ with tab4:
         try:
             token = st.session_state['token']
             headers = {'Authorization': f'Bearer {token}'}
-            response = requests.get('http://localhost:5000/api/v1/books/top-rated', headers=headers)
+            response = requests.get(f'{API_URL}/api/v1/books/top-rated', headers=headers)
 
             if response.status_code == 200:
                 setar_metrica()

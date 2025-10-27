@@ -8,7 +8,7 @@ WORKDIR /app
 # INSTALL DEPENDENCIES
 # ==============================
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # ==============================
 # COPY PROJECT FILES
@@ -16,18 +16,21 @@ RUN pip install -r requirements.txt
 COPY . .
 
 # ==============================
-# EXPOSE PORTS
-# Flask will run on :5000
+# EXPOSE PORT
 # Streamlit will run on :8000
 # ==============================
-EXPOSE 5000
 EXPOSE 8000
 
 # ==============================
 # DEFAULT COMMAND
 # ==============================
-RUN apt-get update && apt-get install -y supervisor && mkdir -p /var/log/supervisor
+# ==============================
+RUN apt-get update && apt-get install -y supervisor \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /var/log/supervisor
 
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Copy supervisord config
+COPY supervisord_streamlit.conf /etc/supervisor/conf.d/supervisord_streamlit.conf
 
-CMD ["/usr/bin/supervisord"]
+# Start supervisor
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord_streamlit.conf"]

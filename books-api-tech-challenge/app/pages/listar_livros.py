@@ -38,7 +38,7 @@ with tab1:
             return None
         
 
-    if get_livros and not indice:
+    if get_livros:
         st.session_state['fetch_data'] = True
 
     # If exists, returns the value, if not, returns the default value

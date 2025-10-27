@@ -29,11 +29,11 @@ def split_frame(input_df, rows):
     df = [input_df.loc[i : i + rows - 1, :] for i in range(0, len(input_df), rows)]
     return df
 
-@st.cache_resource
-def setup_nltk():
-    import nltk
-    for pkg in ["stopwords", "wordnet", "punkt", "punkt_tab", "averaged_perceptron_tagger_eng"]:
-        nltk.download(pkg, quiet=True)
+# @st.cache_resource
+# def setup_nltk():
+#     import nltk
+#     for pkg in ["stopwords", "wordnet", "punkt", "punkt_tab", "averaged_perceptron_tagger_eng"]:
+#         nltk.download(pkg, quiet=True)
 
 def init_session():
     if 'df' not in st.session_state:
@@ -173,7 +173,7 @@ z-index: 1;
 """
 
 def main():
-    setup_nltk()
+    # setup_nltk()
     init_session()
     sidebar()
     st.html(footer)

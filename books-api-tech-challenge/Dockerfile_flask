@@ -1,0 +1,67 @@
+# ==============================
+# BASE IMAGE
+# ==============================
+FROM python:3.11.13-slim
+WORKDIR /app
+
+# ==============================
+# INSTALL DEPENDENCIES
+# ==============================
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl unzip && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV NLTK_DATA=/usr/local/nltk_data
+RUN mkdir -p $NLTK_DATA/corpora $NLTK_DATA/tokenizers $NLTK_DATA/taggers
+
+    # 1. Download the required zip files using curl
+RUN curl -o /tmp/wordnet.zip https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/corpora/wordnet.zip && \
+    curl -o /tmp/stopwords.zip https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/corpora/stopwords.zip && \
+    # 2. Unzip them into the correct NLTK subdirectories
+    unzip /tmp/wordnet.zip -d $NLTK_DATA/corpora && \
+    unzip /tmp/stopwords.zip -d $NLTK_DATA/corpora && \
+    # 3. Clean up the downloaded files
+    rm /tmp/wordnet.zip /tmp/stopwords.zip
+
+    # 1. Download the required zip files using curl
+RUN curl -o /tmp/punkt.zip https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/tokenizers/punkt.zip && \
+    curl -o /tmp/punkt_tab.zip https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/tokenizers/punkt_tab.zip && \
+    # 2. Unzip them into the correct NLTK subdirectories
+    unzip /tmp/punkt.zip -d $NLTK_DATA/tokenizers && \
+    unzip /tmp/punkt_tab.zip -d $NLTK_DATA/tokenizers && \
+    # 3. Clean up the downloaded files
+    rm /tmp/punkt.zip /tmp/punkt_tab.zip
+
+    # 1. Download the required zip files using curl
+RUN curl -o /tmp/tagger.zip https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/taggers/averaged_perceptron_tagger_eng.zip && \
+    # 2. Unzip them into the correct NLTK subdirectories
+    unzip /tmp/tagger.zip -d $NLTK_DATA/taggers && \
+    # 3. Clean up the downloaded files
+    rm /tmp/tagger.zip
+
+# ==============================
+# COPY PROJECT FILES
+# ==============================
+COPY . .
+
+# ==============================
+# EXPOSE PORT
+# Flask will run on :5000
+# ==============================
+EXPOSE 5000
+
+# ==============================
+# DEFAULT COMMAND
+# ==============================
+RUN apt-get update && apt-get install -y supervisor \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /var/log/supervisor
+
+# Copy supervisord config
+COPY supervisord_flask.conf /etc/supervisor/conf.d/supervisord_flask.conf
+
+# Start supervisor
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord_flask.conf"]

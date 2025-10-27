@@ -18,7 +18,7 @@ tab1, tab2, tab3, tab4 = st.tabs(['Livros', 'Livros por Título ou Categoria', '
 with tab1:
     st.subheader('Listar Livros ou Listar Detalhes de um Livro pelo ID')
 
-    indice = st.text_input('Digitar o id de um livro específico para saber os detalhes (não obrigatório):')
+    indice = st.text_input('Digitar o id de um livro específico para saber os detalhes (não obrigatório):', key='wbscr_indice')
 
     get_livros = st.button('Listar', key='listar_1')
 
@@ -119,7 +119,7 @@ with tab1:
                         int(len(df) / batch_size) if int(len(df) / batch_size) > 0 else 1
                     )
                     current_page = st.number_input(
-                        'Página', min_value=1, max_value=total_pages, step=1
+                        'Página', min_value=1, max_value=total_pages, step=1, key='wbscr_current_page'
                     )
                 with bottom_menu[0]:
                     st.markdown(f'Página **{current_page}** of **{total_pages}**')
@@ -129,8 +129,8 @@ with tab1:
 
 with tab2:
     st.subheader('Listar Livros por Título ou Categoria')
-    titulo = st.text_input('Digitar uma palavra que esteja contida no título de um livro:')
-    categoria = st.text_input('Digitar uma palavra que esteja contida na categoria de um livro:')
+    titulo = st.text_input('Digitar uma palavra que esteja contida no título de um livro:', key='wbscr_listar_livros_titulo')
+    categoria = st.text_input('Digitar uma palavra que esteja contida na categoria de um livro:', key='wbscr_listar_livros_categoria')
 
     get_livros = st.button('Listar', key='listar_2')
     if get_livros:
@@ -170,8 +170,8 @@ with tab2:
 
 with tab3:
     st.subheader('Listar Livros por Intervalo de Preço')
-    min = st.text_input('Digitar um preço mínimo:')
-    max = st.text_input('Digitar um preço máximo:')
+    min = st.text_input('Digitar um preço mínimo:', key='wbscr_listar_livros_preco_min')
+    max = st.text_input('Digitar um preço máximo:', key='wbscr_listar_livros_preco_max')
 
     get_livros = st.button('Listar', key='listar_3')
     if get_livros:

@@ -60,7 +60,7 @@ with tab2:
 
 with tab3:
     st.subheader('Predições')
-    query = st.text_input('Digite uma palavra (em inglês) do que busca para obter títulos similares existentes')
+    query = st.text_input('Digite uma palavra (em inglês) do que busca para obter títulos similares existentes', key='ml_predicoes')
     bt = st.button('Obter predição')
 
     if bt:

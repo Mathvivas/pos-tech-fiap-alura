@@ -66,16 +66,16 @@ def sidebar():
         st.title('API de Livros')
         st.markdown('-----')
         
-        with st.expander('Usuário', icon=':material/account_box:'):
-            user = st.text_input('Usuário')
-            password = st.text_input('Senha', type='password')
+        with st.form('Conta', clear_on_submit=False):
+            user = st.text_input('Usuário', key='form_user')
+            password = st.text_input('Senha', type='password', key='form_pass')
             col1, col2 = st.columns(2)
             
             with col1:
-                register = st.button('Registrar', icon=':material/person_add:')
+                register = st.form_submit_button('Registrar', icon=':material/person_add:')
             
             with col2:
-                login = st.button('Login', icon=':material/login:')
+                login = st.form_submit_button('Login', icon=':material/login:')
             
             if register:
                 auth = {
@@ -103,8 +103,7 @@ def sidebar():
                     st.error(response_login.text)
 
         with st.expander('Token', icon=':material/token:'):
-            token = st.text_input('Cole o token aqui:', type='password')
-            st.session_state['token'] = token
+            token = st.text_input('Cole o token aqui:', type='password', key='token')
             atualizar = st.button('Renovar token prestes a expirar')
             
             if atualizar:

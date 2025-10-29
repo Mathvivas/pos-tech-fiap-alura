@@ -2,8 +2,8 @@ import requests
 import streamlit as st
 from app import app
 import pandas as pd
-from streamlit_app import setar_metrica, load_data
-from data_cleaning import data_cleaning, split_data, vectorize, find_similar
+from streamlit_app import setar_metrica
+from pagination import pagination, get_data
 import json
 from dotenv import load_dotenv
 import os
@@ -24,39 +24,42 @@ with tab1:
     bt = st.button('Obter features')
 
     if bt:
-        try:
-            with st.spinner("Pegando as features...", show_time=True):
-                response = requests.get(f'{API_URL}/api/v1/ml/features')
-                if response.status_code == 200:
-                    setar_metrica()
-                    dados = json.loads(response.json())
-                    df = pd.DataFrame(dados)
-                    st.dataframe(df, column_config={
-                                'Imagem': st.column_config.ImageColumn(label='Imagem', width=110)
-                    })
-                else:
-                    st.error(f'Erro ao buscar livros: {response.text}')
-        except Exception as e:
-            st.error(f'Ocorreu um erro ao conectar à API: {e}')
+        st.session_state['fetch_data_features'] = True
+
+    if st.session_state.get('fetch_data_features', default=False):
+        if 'livros_ml_features' not in st.session_state:
+            dados = get_data(url='/api/v1/ml/features')
+            if dados:
+                st.session_state['livros_ml_features'] = pd.DataFrame(json.loads(dados))
+            else:
+                st.session_state['fetch_data_features'] = False
+                st.stop()
+
+        df = st.session_state['livros_ml_features']
+        setar_metrica()
+
+        pagination(df, key='ml_features')
 
 with tab2:
     st.subheader('Dados de Treinamento')
     bt = st.button('Obter dados')
     
     if bt:
-        try:
-            with st.spinner("Pegando os dados de treinamento...", show_time=True):
-                response = requests.get(f'{API_URL}/api/v1/ml/training-data')
-                if response.status_code == 200:
-                    setar_metrica()
-                    dados = json.loads(response.json())
-                    X_train = pd.DataFrame(dados)
-                    st.dataframe(X_train)
-                    st.markdown(f'**Shape dos Dados de Treinamento: {X_train.shape}**')
-                else:
-                    st.error(f'Erro ao buscar livros: {response.text}')
-        except Exception as e:
-            st.error(f'Ocorreu um erro ao conectar à API: {e}')
+        st.session_state['fetch_data_training'] = True
+
+    if st.session_state.get('fetch_data_training', default=False):
+        if 'livros_ml_training' not in st.session_state:
+            dados = get_data(url='/api/v1/ml/training-data')
+            if dados:
+                st.session_state['livros_ml_training'] = pd.DataFrame(json.loads(dados))
+            else:
+                st.session_state['fetch_data_training'] = False
+                st.stop()
+
+        df = st.session_state['livros_ml_training']
+        setar_metrica()
+
+        pagination(df, key='ml_training')
 
 with tab3:
     st.subheader('Predições')
@@ -79,8 +82,7 @@ with tab3:
                         response = requests.post(f'{API_URL}/api/v1/ml/predictions', json=json_query, headers=headers)
                         if response.status_code == 200:
                             setar_metrica()
-                            dados = json.loads(response.json())
-                            df = pd.DataFrame(dados)
+                            df = pd.DataFrame(json.loads(response.json()))
                             st.dataframe(df)
                         else:
                             st.error(f'Erro ao buscar livros: {response.text}')

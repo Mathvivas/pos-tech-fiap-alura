@@ -13,17 +13,16 @@ app.json.ensure_ascii = False
 
 ### Funções usadas para o web scraping
 
-def get_category_description(url: str):
-    logger.debug('Entrando na função de pegar categoria e descrição.')
+def get_category(url: str):
+    logger.debug('Entrando na função de pegar categoria.')
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
 
     time.sleep(1)
 
     category = soup.find('ul', class_='breadcrumb').find_all('li')[2].find('a').get_text()
-    description = soup.find_all('p')[3].get_text()
 
-    return category, description
+    return category
 
 def get_details() -> list:
     """
@@ -67,13 +66,12 @@ def get_details() -> list:
             link_to_book = book.find('article', class_='product_pod').find('h3').find('a')['href']
             full_link = requests.compat.urljoin(url_raiz, link_to_book)
 
-            category, description = get_category_description(full_link)
+            category = get_category(full_link)
             img = book.find('div', class_='image_container').find('a').find('img')['src']
             image = requests.compat.urljoin(url_books, img)
 
             book_data.append({
                 'title': title,
-                'description': description,
                 'price': price,
                 'rating': rating,
                 'availability': availability,
@@ -99,7 +97,6 @@ st.markdown(
     - Disponibilidade
     - Categoria
     - Imagem
-    - *Descrição* (não era necessária, mas foi utilizada para dar mais informações ao modelo de Machine Learning)
     """)
 
 

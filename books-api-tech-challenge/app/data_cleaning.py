@@ -86,16 +86,15 @@ def data_cleaning(data):
     data['Availability_ok'] = data['Availability'].apply(disponibilidade)
     data.drop(columns=['Availability'], inplace=True)
 
-    data['Price'] = data['Price'].astype(float)
+    data['Price'] = pd.to_numeric(data['Price'], errors='coerce')
 
     data = one_hot_category(data)
 
-    data['Text'] = data['Title'] + ' ' + data['Description']
-    data['Clean_Text'] = data['Text'].apply(clean_text)
+    data['Clean_Text'] = data['Title'].apply(clean_text)
 
-    data_ml = data.drop(columns=['Image', 'Description', 'Text', 'Id'])
+    data.drop(columns=['Image', 'Id'], inplace=True)
 
-    return data_ml
+    return data
 
 def vectorize(data):
     vectorizer = TfidfVectorizer(ngram_range=(1, 2))

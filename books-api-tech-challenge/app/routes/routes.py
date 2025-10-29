@@ -444,7 +444,6 @@ def get_features():
                 'Price': book.price,
                 'Rating': book.rating,
                 'Image': book.image,
-                'Description': book.description,
                 'Availability': book.availability,
                 'Category': book.category,
             }
@@ -488,7 +487,6 @@ def get_training_data():
                 'Price': book.price,
                 'Rating': book.rating,
                 'Image': book.image,
-                'Description': book.description,
                 'Availability': book.availability,
                 'Category': book.category,
             }
@@ -530,7 +528,6 @@ def give_predictions():
                 'Price': book.price,
                 'Rating': book.rating,
                 'Image': book.image,
-                'Description': book.description,
                 'Availability': book.availability,
                 'Category': book.category,
             }

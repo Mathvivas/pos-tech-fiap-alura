@@ -24,17 +24,6 @@ def setar_metrica():
     new_row = pd.DataFrame([{'Time': datetime.datetime.now(), 'Metric': st.session_state.metric}])
     st.session_state.history = pd.concat([st.session_state.history, new_row], ignore_index=True)
 
-@st.cache_data(show_spinner=False)
-def split_frame(input_df, rows):
-    df = [input_df.loc[i : i + rows - 1, :] for i in range(0, len(input_df), rows)]
-    return df
-
-# @st.cache_resource
-# def setup_nltk():
-#     import nltk
-#     for pkg in ["stopwords", "wordnet", "punkt", "punkt_tab", "averaged_perceptron_tagger_eng"]:
-#         nltk.download(pkg, quiet=True)
-
 def init_session():
     if 'df' not in st.session_state:
         df = load_data(config.CSV_FILE_PATH)
@@ -49,6 +38,11 @@ def init_session():
 
     if 'csv_data' not in st.session_state:
         st.session_state['csv_data'] = 0
+
+    if 'form_user' not in st.session_state:
+        st.session_state['form_user'] = ''
+    if 'form_pass' not in st.session_state:
+        st.session_state['form_pass'] = ''
 
 def sidebar():
 

@@ -2,7 +2,8 @@ import requests
 import streamlit as st
 from app import app
 import pandas as pd
-from streamlit_app import setar_metrica, split_frame
+from streamlit_app import setar_metrica
+from pagination import pagination, get_data
 from dotenv import load_dotenv
 import os
 
@@ -22,22 +23,6 @@ with tab1:
 
     get_livros = st.button('Listar', key='listar_1')
 
-    @st.cache_data(show_spinner=False)
-    def get_data(token):
-        try:
-            headers = {'Authorization': f'Bearer {token}'}
-            response = requests.get(f'{API_URL}/api/v1/books', headers=headers)
-            response.raise_for_status()
-            dados = response.json()
-            return dados
-        except requests.exceptions.HTTPError as err:
-            st.error(f'Erro do servidor (código {err.response.status_code}): {err.response.text}')
-            return None
-        except Exception as e:
-            st.error(f'Ocorreu um erro ao conectar à API: {e}')
-            return None
-        
-
     if get_livros:
         st.session_state['fetch_data'] = True
 
@@ -55,9 +40,8 @@ with tab1:
                     response = requests.get(f'{API_URL}/api/v1/books/{indice}', headers=headers)
                     if response.status_code == 200:
                         setar_metrica()
-                        dados = response.json()
-                        df = pd.DataFrame(dados)
-                        df = df.rename(columns={
+                        df = pd.DataFrame(response.json())
+                        df.rename(columns={
                                 'Title': 'Título',
                                 'Id': 'Id',
                                 'Category': 'Categoria',
@@ -65,7 +49,7 @@ with tab1:
                                 'Price': 'Preço',
                                 'Rating': 'Nota',
                                 'Availability': 'Disponibilidade',
-                            })
+                            }, inplace=True)
                         st.dataframe(df, column_config={
                             'Imagem': st.column_config.ImageColumn(label='Imagem', width=110)
                         }, hide_index=True)
@@ -75,7 +59,7 @@ with tab1:
                     st.error(f'Ocorreu um erro ao conectar à API: {e}')
             else:
                 if 'livros_df' not in st.session_state:
-                    dados = get_data(token)
+                    dados = get_data('/api/v1/books', token)
                     if dados:
                         setar_metrica()
                         df = pd.DataFrame(dados)
@@ -109,23 +93,7 @@ with tab1:
                         by=sort_field, ascending=sort_direction == ':material/arrow_upward:', ignore_index=True
                     )
 
-                bottom_menu = st.columns((4, 1, 1))    
-                page_container = st.container()
-
-                with bottom_menu[2]:
-                    batch_size = st.selectbox('Tamanho', options=[25, 50, 100])
-                with bottom_menu[1]:
-                    total_pages = (
-                        int(len(df) / batch_size) if int(len(df) / batch_size) > 0 else 1
-                    )
-                    current_page = st.number_input(
-                        'Página', min_value=1, max_value=total_pages, step=1, key='wbscr_current_page'
-                    )
-                with bottom_menu[0]:
-                    st.markdown(f'Página **{current_page}** of **{total_pages}**')
-
-                pages = split_frame(df, batch_size)
-                page_container.dataframe(data=pages[current_page - 1], width='stretch', hide_index=True)
+                pagination(df, key='listar_livros')
 
 with tab2:
     st.subheader('Listar Livros por Título ou Categoria')
@@ -149,16 +117,15 @@ with tab2:
 
                 if response.status_code == 200:
                     setar_metrica()
-                    dados = response.json()
-                    df = pd.DataFrame(dados)
-                    df = df.rename(columns={
+                    df = pd.DataFrame(response.json())
+                    df.rename(columns={
                         'Title': 'Título',
                         'Id': 'Id',
                         'Category': 'Categoria',
                         'Price': 'Preço',
                         'Rating': 'Nota',
                         'Availability': 'Disponibilidade',
-                    })
+                    }, inplace=True)
                     st.dataframe(df, column_config={
                         'Preço': st.column_config.NumberColumn(format='R$%.2f')
                     })
@@ -190,15 +157,14 @@ with tab3:
 
                 if response.status_code == 200:
                     setar_metrica()
-                    dados = response.json()
-                    df = pd.DataFrame(dados)
-                    df = df.rename(columns={
+                    df = pd.DataFrame(response.json())
+                    df.rename(columns={
                         'Title': 'Título',
                         'Id': 'Id',
                         'Category': 'Categoria',
                         'Price': 'Preço',
                         'Rating': 'Nota'
-                    })
+                    }, inplace=True)
                     st.dataframe(df, column_config={
                         'Preço': st.column_config.NumberColumn(format='R$%.2f')
                     })
@@ -220,12 +186,11 @@ with tab4:
 
             if response.status_code == 200:
                 setar_metrica()
-                dados = response.json()
-                df = pd.DataFrame(dados)
-                df = df.rename(columns={
+                df = pd.DataFrame(response.json())
+                df.rename(columns={
                     'Title': 'Título',
                     'Rating': 'Nota'
-                })
+                }, inplace=True)
                 st.dataframe(df)
             else:
                 st.error(f'Erro ao buscar livro: {response.text}')

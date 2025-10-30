@@ -46,4 +46,8 @@ def pagination(df, key):
         st.markdown(f'Página **{current_page}** of **{total_pages}**')
 
     pages = split_frame(df, batch_size)
-    page_container.dataframe(data=pages[current_page - 1], width='stretch', hide_index=True)
+    page_container.dataframe(data=pages[current_page - 1], width='stretch', hide_index=True, 
+                             column_config={
+        'Preço': st.column_config.NumberColumn(format='R$%.2f'),
+        'Imagem': st.column_config.ImageColumn(width=110)
+    })

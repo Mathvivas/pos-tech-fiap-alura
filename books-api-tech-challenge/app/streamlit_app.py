@@ -39,11 +39,6 @@ def init_session():
     if 'csv_data' not in st.session_state:
         st.session_state['csv_data'] = 0
 
-    if 'form_user' not in st.session_state:
-        st.session_state['form_user'] = ''
-    if 'form_pass' not in st.session_state:
-        st.session_state['form_pass'] = ''
-
 def sidebar():
 
     st.html("""
@@ -60,41 +55,59 @@ def sidebar():
         st.title('API de Livros')
         st.markdown('-----')
         
-        with st.form('Conta', clear_on_submit=False):
+        with st.expander('Conta', icon=':material/account_box:'):
             user = st.text_input('Usuário', key='form_user')
             password = st.text_input('Senha', type='password', key='form_pass')
             col1, col2 = st.columns(2)
+
+            def login():
+                user_val = st.session_state.form_user
+                pass_val = st.session_state.form_pass
+
+                auth = {
+                    'username': user_val,
+                    'password': pass_val
+                }
+
+                response_login = requests.post(f'{API_URL}/api/v1/auth/login', json=auth)
+
+                if response_login.status_code == 201:
+                    st.session_state['login_message'] = ('success', response_login.text)
+                else:
+                    st.session_state['login_message'] = ('error', response_login.text)
+
+            def register():
+                user_val = st.session_state.form_user
+                pass_val = st.session_state.form_pass
+
+                auth = {
+                    'username': user_val,
+                    'password': pass_val
+                }
+
+                print('==========Antes de mandar requisição')
+                response_register = requests.post(f'{API_URL}/api/v1/auth/register', json=auth)
+                print('==========Depois de mandar requisição')
+
+                if response_register.status_code == 201:
+                    st.session_state['login_message'] = ('success', response_register.text)
+                else:
+                    st.session_state['login_message'] = ('error', response_register.text)
             
             with col1:
-                register = st.form_submit_button('Registrar', icon=':material/person_add:')
+                register = st.button('Registrar', icon=':material/person_add:', on_click=register)
             
             with col2:
-                login = st.form_submit_button('Login', icon=':material/login:')
-            
-            if register:
-                auth = {
-                    'username': user,
-                    'password': password
-                }
-                response_register = requests.post(f'{API_URL}/api/v1/auth/register', json=auth)
-            
-                if response_register.status_code == 201:
-                    st.success(response_register.text)
+                login = st.button('Login', icon=':material/login:', on_click=login)
+
+            if 'login_message' in st.session_state:
+                type, message = st.session_state.login_message
+                if type == 'success':
+                    st.success(message)
                 else:
-                    st.error(response_register.text)
-            if login:
-                auth = {
-                    'username': user,
-                    'password': password
-                }
+                    st.error(message)
             
-                response_login = requests.post(f'{API_URL}/api/v1/auth/login', json=auth)
             
-                if response_login.status_code == 201:
-                    dados_json = response_login.json()
-                    st.success('Token: ' + dados_json.get('access_token'))
-                else:
-                    st.error(response_login.text)
 
         with st.expander('Token', icon=':material/token:'):
             token = st.text_input('Cole o token aqui:', type='password', key='token')

@@ -115,7 +115,7 @@ def import_df_to_db():
         db.create_all()
         engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
         
-        with st.spinner("Raspando dados do site (~ 1 minuto)...", show_time=True):
+        with st.spinner("Raspando dados do site (~ 2 minutos)...", show_time=True):
             book_data = get_all_books()
             df = pd.DataFrame(book_data)
             df.to_sql('books', engine, if_exists='replace', index=True, index_label='id')

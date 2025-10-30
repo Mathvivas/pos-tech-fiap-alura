@@ -31,13 +31,13 @@ with tab1:
             dados = get_data(url='/api/v1/ml/features')
             if dados:
                 st.session_state['livros_ml_features'] = pd.DataFrame(json.loads(dados))
+                setar_metrica()
             else:
                 st.session_state['fetch_data_features'] = False
                 st.stop()
 
         df = st.session_state['livros_ml_features']
-        setar_metrica()
-
+        
         pagination(df, key='ml_features')
 
 with tab2:
@@ -52,12 +52,12 @@ with tab2:
             dados = get_data(url='/api/v1/ml/training-data')
             if dados:
                 st.session_state['livros_ml_training'] = pd.DataFrame(json.loads(dados))
+                setar_metrica()
             else:
                 st.session_state['fetch_data_training'] = False
                 st.stop()
 
         df = st.session_state['livros_ml_training']
-        setar_metrica()
 
         pagination(df, key='ml_training')
 

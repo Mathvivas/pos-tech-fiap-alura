@@ -3,7 +3,7 @@ import streamlit as st
 from app import app
 import ast
 import pandas as pd
-from streamlit_app import setar_metrica
+from utils import setar_metrica
 from dotenv import load_dotenv
 import os
 
@@ -29,4 +29,4 @@ if categ:
         df = pd.DataFrame(dados, columns=['Categorias'])
         st.dataframe(df)
     else:
-        st.error(response.text)
+        st.error(f'Não foi possível acessar categorias: {response.text}')

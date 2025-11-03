@@ -1,12 +1,12 @@
 import requests
 import streamlit as st
-import pandas as pd
-import datetime
-import config
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
+
+for key in ("form_user", "form_pass", "token"):
+    st.session_state.setdefault(key, "")
 
 API_URL = os.getenv("API_URL")
 
@@ -14,30 +14,6 @@ st.set_page_config(
     page_title='API de Livros',
     page_icon=':orange_book:'
 )
-
-@st.cache_resource
-def load_data(file_path):
-    return pd.read_csv(file_path)
-
-def setar_metrica():
-    st.session_state['metric'] += 1
-    new_row = pd.DataFrame([{'Time': datetime.datetime.now(), 'Metric': st.session_state.metric}])
-    st.session_state.history = pd.concat([st.session_state.history, new_row], ignore_index=True)
-
-def init_session():
-    if 'df' not in st.session_state:
-        df = load_data(config.CSV_FILE_PATH)
-        st.session_state['df'] = df
-
-    if 'metric' not in st.session_state:
-        st.session_state['metric'] = 0
-        metric = st.session_state['metric']
-
-    if 'history' not in st.session_state:
-        st.session_state['history'] = pd.DataFrame(columns=['Time', 'Metric'])
-
-    if 'csv_data' not in st.session_state:
-        st.session_state['csv_data'] = 0
 
 def sidebar():
 
@@ -51,15 +27,10 @@ def sidebar():
     """)
     
     with st.sidebar:
-        st.logo('../images/book-logo-nbg.png')
         st.title('API de Livros')
         st.markdown('-----')
         
         with st.expander('Conta', icon=':material/account_box:'):
-            user = st.text_input('Usuário', key='form_user')
-            password = st.text_input('Senha', type='password', key='form_pass')
-            col1, col2 = st.columns(2)
-
             def login():
                 user_val = st.session_state.form_user
                 pass_val = st.session_state.form_pass
@@ -72,9 +43,10 @@ def sidebar():
                 response_login = requests.post(f'{API_URL}/api/v1/auth/login', json=auth)
 
                 if response_login.status_code == 201:
-                    st.session_state['login_message'] = ('success', response_login.text)
+                    dados_json = response_login.json()
+                    st.session_state['login_message'] = ('success', dados_json.get('access_token'))
                 else:
-                    st.session_state['login_message'] = ('error', response_login.text)
+                    st.session_state['login_message'] = ('error', 'Não foi possível realizar o login')
 
             def register():
                 user_val = st.session_state.form_user
@@ -85,14 +57,16 @@ def sidebar():
                     'password': pass_val
                 }
 
-                print('==========Antes de mandar requisição')
                 response_register = requests.post(f'{API_URL}/api/v1/auth/register', json=auth)
-                print('==========Depois de mandar requisição')
 
                 if response_register.status_code == 201:
                     st.session_state['login_message'] = ('success', response_register.text)
                 else:
                     st.session_state['login_message'] = ('error', response_register.text)
+
+            user = st.text_input('Usuário', key='form_user')
+            password = st.text_input('Senha', type='password', key='form_pass')
+            col1, col2 = st.columns(2)
             
             with col1:
                 register = st.button('Registrar', icon=':material/person_add:', on_click=register)
@@ -150,6 +124,8 @@ pages = {
     ]
 }
 
+st.logo('../images/book-logo-nbg.png')
+
 footer="""<style>
 a:link , a:visited{
 color: #00ffff;
@@ -179,8 +155,6 @@ z-index: 1;
 """
 
 def main():
-    # setup_nltk()
-    init_session()
     sidebar()
     st.html(footer)
     pg = st.navigation(pages, position='top')

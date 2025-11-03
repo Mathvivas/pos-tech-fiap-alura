@@ -2,7 +2,7 @@ import requests
 import streamlit as st
 from app import app
 import pandas as pd
-from streamlit_app import setar_metrica
+from utils import setar_metrica
 from pagination import pagination, get_data
 from dotenv import load_dotenv
 import os

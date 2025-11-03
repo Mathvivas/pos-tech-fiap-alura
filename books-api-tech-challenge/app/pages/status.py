@@ -2,7 +2,7 @@ import requests
 import streamlit as st
 from app import app
 import time
-from streamlit_app import setar_metrica
+from utils import setar_metrica
 import os
 
 API_URL = os.getenv('API_URL')

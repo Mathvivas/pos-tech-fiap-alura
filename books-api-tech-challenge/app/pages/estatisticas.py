@@ -3,7 +3,7 @@ import streamlit as st
 from app import app
 import json
 import pandas as pd
-from streamlit_app import setar_metrica
+from utils import setar_metrica
 from dotenv import load_dotenv
 import os
 
@@ -41,7 +41,7 @@ with tab1:
                 st.text(f'Total de Livros: {dados_json.get("Total de Livros")}')
                 st.text(f'Preço Médio: {dados_json.get("Preço Médio")}')
         else:
-            st.text(response.text)
+            st.error(f'Não foi possível acessar estatísticas: {response.text}')
 
 with tab2:
     st.subheader('Estatísticas por Categoria')

@@ -1,6 +1,5 @@
 import streamlit as st
-from app import app, logger
-import pandas as pd
+from app import app
 
 app.config.from_object('config')
 app.json.ensure_ascii = False

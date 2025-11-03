@@ -4,7 +4,7 @@ from app import app, db, logger
 from sqlalchemy import create_engine
 import pandas as pd
 from bs4 import BeautifulSoup
-from streamlit_app import setar_metrica
+from utils import setar_metrica
 import concurrent.futures
 
 app.config.from_object('config')

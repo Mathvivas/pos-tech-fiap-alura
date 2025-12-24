@@ -66,7 +66,7 @@ cotacoes = cotacoes.withColumn('dataproc', date_format('Date', 'yyyyMMdd').cast(
 logger.info("======= Schema do DataFrame: =======\n")
 cotacoes.printSchema()
 
-raw_data_path = 's3://fiap-etl-tech-challenge-2-mathvivas-bucket/raw/'
+raw_data_path = 's3://etl-pos-tech-challenge-2-mathvivas/raw/'
 
 cotacoes.write.mode('overwrite').partitionBy('dataproc').parquet(raw_data_path)
 

@@ -60,7 +60,7 @@ df = df.withColumnRenamed('Close', 'Fechamento') \
 
 df = df.withColumn('dataproc', date_format('Data', 'yyyyMMdd').cast('int'))
 
-transformed_data_path = 's3://fiap-etl-tech-challenge-2-mathvivas-bucket/interim/'
+transformed_data_path = 's3://etl-pos-tech-challenge-2-mathvivas/interim/'
 
 df.write.mode('overwrite').partitionBy('dataproc').parquet(transformed_data_path)
 

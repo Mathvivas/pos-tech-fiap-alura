@@ -1,0 +1,39 @@
+############################
+## Trusted Relationships ###
+############################
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": [
+                    "lambda.amazonaws.com",
+                    "glue.amazonaws.com",
+                    "s3.amazonaws.com",
+                    "athena.amazonaws.com",
+                    "scheduler.amazonaws.com"
+                ]
+            },
+            "Action": [
+                "sts:AssumeRole",
+                "sts:SetSourceIdentity",
+                "sts:TagSession"
+            ]
+        }
+    ]
+}
+
+############################
+####### Permissions ########
+############################
+
+AdministratorAccess
+AmazonAthenaFullAccess
+AmazonEventBridgeFullAccess
+AmazonS3FullAccess
+AWSGlueConsole-S3-read-and-write-policy
+AWSGlueConsoleFullAccess
+AWSLambda_FullAccess
+IAMFullAccess

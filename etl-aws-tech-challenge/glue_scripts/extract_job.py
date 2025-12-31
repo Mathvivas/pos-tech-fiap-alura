@@ -128,5 +128,20 @@ logger.info(f'Executando comando: {repair_table_query}')
 spark.sql(repair_table_query)
 logger.info(f'Comando MSCK REPAIR TABLE executando com sucesso para a tabela {table_name}.')
 
+## Adiciona uma tag no S3 para dizer quando o job terminou de rodar
+from datetime import datetime
+
+s3 = boto3.client('s3')
+
+bucket = 'etl-pos-tech-challenge-2-mathvivas'
+marker_key = 'raw/_EXTRACT_COMPLETE'
+
+s3.put_object(
+    Bucket=bucket,
+    Key=marker_key,
+    Body=f"Extract completed at {datetime.utcnow().isoformat()}".encode("utf-8")
+)
+
+logger.info("Extraction completion marker written to S3")
 
 job.commit()

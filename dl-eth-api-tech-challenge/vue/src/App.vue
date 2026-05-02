@@ -124,7 +124,7 @@ async function enviarPredicao() {
   errorMessage.value = ''
 
   if (!isFormValid.value) {
-    errorMessage.value = 'Preencha todos os campos com valores validos.'
+    errorMessage.value = 'Preencha todos os campos com valores válidos.'
     return
   }
 
@@ -154,10 +154,10 @@ async function enviarPredicao() {
       throw new Error(backendMessage)
     }
 
-    successMessage.value = data.message || 'Predicao enviada com sucesso.'
+    successMessage.value = data.message || 'Predição enviada com sucesso.'
     predictionResults.value = data.data || []
   } catch (error) {
-    errorMessage.value = error.message || 'Erro inesperado ao enviar predicao.'
+    errorMessage.value = error.message || 'Erro inesperado ao enviar predição.'
   } finally {
     isLoading.value = false
   }
@@ -167,11 +167,11 @@ async function enviarPredicao() {
 <template>
   <main class="container">
     <section class="card">
-      <h1>Previsao de Ethereum</h1>
-      <p>Informe os parametros para enviar a solicitacao ao backend.</p>
+      <h1>Previsão de Ethereum</h1>
+      <p>Informe os parâmetros para enviar a solicitação ao backend.</p>
 
       <form class="form" @submit.prevent="enviarPredicao">
-        <label for="data_referencia">Data de referencia</label>
+        <label for="data_referencia">Data de referência</label>
         <input
           id="data_referencia"
           v-model="form.data_referencia"
@@ -179,7 +179,7 @@ async function enviarPredicao() {
           required
         />
 
-        <label for="dias_previsao">Dias de previsao</label>
+        <label for="dias_previsao">Dias de previsão</label>
         <input
           id="dias_previsao"
           v-model.number="form.dias_previsao"
@@ -220,7 +220,7 @@ async function enviarPredicao() {
               <thead>
                 <tr>
                   <th>Data</th>
-                  <th>Preco (USD)</th>
+                  <th>Preço (USD)</th>
                 </tr>
               </thead>
               <tbody>
@@ -238,7 +238,7 @@ async function enviarPredicao() {
               <thead>
                 <tr>
                   <th>Data</th>
-                  <th>Preco Previsto (USD)</th>
+                  <th>Preço Previsto (USD)</th>
                 </tr>
               </thead>
               <tbody>
@@ -297,7 +297,7 @@ input {
   border: 1px solid #4b5563;
   border-radius: 8px;
   padding: 0.6rem 0.8rem;
-  background-color: #111827;
+  background-color: #2c3b5a;
   color: #f9fafb;
 }
 

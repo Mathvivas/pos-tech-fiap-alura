@@ -1,0 +1,21 @@
+2026-05-02 14:50:10 - root - INFO - Aplicação iniciada
+2026-05-02 14:50:10 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.15.57:8080
+2026-05-02 14:50:10 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-05-02 14:50:19 - werkzeug - INFO - 127.0.0.1 - - [02/May/2026 14:50:19] "OPTIONS /predict HTTP/1.1" 200 -
+2026-05-02 14:50:20 - werkzeug - INFO - 127.0.0.1 - - [02/May/2026 14:50:20] "POST /predict HTTP/1.1" 200 -
+2026-05-02 14:59:57 - werkzeug - INFO - 127.0.0.1 - - [02/May/2026 14:59:57] "OPTIONS /predict HTTP/1.1" 200 -
+2026-05-02 14:59:57 - werkzeug - INFO - 127.0.0.1 - - [02/May/2026 14:59:57] "POST /predict HTTP/1.1" 200 -
+2026-05-02 15:04:52 - werkzeug - INFO - 127.0.0.1 - - [02/May/2026 15:04:52] "OPTIONS /predict HTTP/1.1" 200 -
+2026-05-02 15:04:53 - werkzeug - INFO - 127.0.0.1 - - [02/May/2026 15:04:53] "POST /predict HTTP/1.1" 200 -
+2026-05-02 15:06:00 - werkzeug - INFO - 127.0.0.1 - - [02/May/2026 15:06:00] "OPTIONS /predict HTTP/1.1" 200 -
+2026-05-02 15:06:00 - werkzeug - INFO - 127.0.0.1 - - [02/May/2026 15:06:00] "POST /predict HTTP/1.1" 200 -
+2026-05-02 15:06:23 - werkzeug - INFO - 127.0.0.1 - - [02/May/2026 15:06:23] "OPTIONS /predict HTTP/1.1" 200 -
+2026-05-02 15:06:23 - werkzeug - INFO - 127.0.0.1 - - [02/May/2026 15:06:23] "POST /predict HTTP/1.1" 200 -
+2026-05-02 15:12:56 - werkzeug - INFO - 127.0.0.1 - - [02/May/2026 15:12:56] "OPTIONS /predict HTTP/1.1" 200 -
+2026-05-02 15:12:57 - werkzeug - INFO - 127.0.0.1 - - [02/May/2026 15:12:57] "POST /predict HTTP/1.1" 200 -
+2026-05-02 15:13:00 - werkzeug - INFO - 127.0.0.1 - - [02/May/2026 15:13:00] "POST /predict HTTP/1.1" 200 -
+2026-05-02 15:15:44 - werkzeug - INFO - 127.0.0.1 - - [02/May/2026 15:15:44] "OPTIONS /predict HTTP/1.1" 200 -
+2026-05-02 15:15:45 - werkzeug - INFO - 127.0.0.1 - - [02/May/2026 15:15:45] "POST /predict HTTP/1.1" 200 -

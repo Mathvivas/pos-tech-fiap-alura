@@ -1,0 +1,12 @@
+- A URL da API está configurada assim: const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
+usar padrão: http://localhost:5000
+ou criar vue/.env com:
+VITE_API_BASE_URL=http://SEU_BACKEND:PORTA
+
+- No diretório vue:
+instalar deps: npm install
+subir em dev: npm run dev
+
+
+Swagger
+http://localhost:5000/docs/

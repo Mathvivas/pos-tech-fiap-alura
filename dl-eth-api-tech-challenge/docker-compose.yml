@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8080:8080"
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./app:/app/app
+      - ./app/model:/app/app/model
+    working_dir: /app
+    command: python app/app.py
+
+  frontend:
+    build:
+      context: ./vue
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8080
+    volumes:
+      - ./vue/src:/frontend/src
+      - ./vue/public:/frontend/public
+    command: npm run dev
+    depends_on:
+      - backend

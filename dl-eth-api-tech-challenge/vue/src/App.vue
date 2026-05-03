@@ -63,6 +63,17 @@ const chartData = computed(() => {
     console.log('allData', allData)
     console.log(JSON.stringify(allData, null, 2))
 
+  const lastHistoricalItem = allData
+    .filter(item => item.historical != null)
+    .slice(-1)[0]
+
+  const predictedData = allData.map(item => {
+    if (item.date === lastHistoricalItem?.date) {
+      return lastHistoricalItem.historical
+    }
+    return item.predicted
+  })
+
   return {
     labels: allData.map(item => item.date),
     datasets: [
@@ -78,7 +89,7 @@ const chartData = computed(() => {
       },
       {
         label: 'Previsões',
-        data: allData.map(item => item.predicted),
+        data: predictedData,
         borderColor: '#ef4444',
         backgroundColor: '#ef4444',
         borderDash: [5, 5],

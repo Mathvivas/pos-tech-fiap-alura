@@ -8,7 +8,7 @@ import sys
 import os
 import torch
 import joblib
-from model import LSTM
+# from model import LSTM
 
 APP_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = APP_DIR.parent
@@ -31,6 +31,7 @@ app.json.ensure_ascii = False
 
 MODEL_WEIGHTS_PATH = APP_DIR / 'model' / 'model_weights.pth'
 SCALER_PATH = APP_DIR / 'model' / 'scaler.pkl'
+INVERSE_SCALER_PATH = APP_DIR / 'model' / 'inverse_scaler.pkl'
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -42,14 +43,16 @@ logger = logging.getLogger()
 
 CORS(app)
 
-model = LSTM()
+# model = LSTM(2, 32, 2, 10)
 
 state_dict = torch.load(MODEL_WEIGHTS_PATH, weights_only=True)
-model.load_state_dict(state_dict)
+# model.load_state_dict(state_dict)
 scaler = joblib.load(SCALER_PATH)
+inverse_scaler = joblib.load(INVERSE_SCALER_PATH)
 
-app.config['MODEL'] = model
+# app.config['MODEL'] = model
 app.config['SCALER'] = scaler
+app.config['INVERSE_SCALER'] = inverse_scaler
 app.config['PREDICT_FUNC'] = predict_future_from_history
 app.config['MODEL_LOAD_ERROR'] = None
 

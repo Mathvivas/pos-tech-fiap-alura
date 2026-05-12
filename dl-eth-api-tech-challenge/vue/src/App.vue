@@ -22,7 +22,9 @@ ChartJS.register(
   Legend
 )
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://ethereum-predictor-latest.onrender.com'
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
 const form = reactive({
   data_referencia: '',

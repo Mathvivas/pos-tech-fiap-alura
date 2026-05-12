@@ -103,7 +103,7 @@ def predict_future_from_history(
             batch_predictions_scaled_close = model(input_tensor).numpy()[0] # shape (dias_previsao,)
 
             # Determinar quantos passos de previsão pegar deste batch
-            take_n = min(dias_previsao, dias_previsao - steps_predicted_so_far)
+            take_n = min(batch_predictions_scaled_close.shape[0], dias_previsao - steps_predicted_so_far)
 
             # Adicionar as previsões ao resultado
             forecasted_values_scaled_close.extend(batch_predictions_scaled_close[:take_n])

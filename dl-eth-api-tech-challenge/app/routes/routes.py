@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify, current_app
 import pandas as pd
-from model import LSTM
 
 api_bp = Blueprint("api", __name__)
 
@@ -50,7 +49,7 @@ def predict():
     if missing_fields:
         return jsonify({'message': f'Campos obrigatorios ausentes: {", ".join(missing_fields)}'}), 400
 
-    model = LSTM(2, 32, 2, payload['dias_previsao'])
+    model = current_app.config.get('MODEL')
     scaler = current_app.config.get('SCALER')
     scaler_inverse = current_app.config.get('INVERSE_SCALER')
     predict_future_from_history = current_app.config.get('PREDICT_FUNC')

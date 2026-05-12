@@ -59,8 +59,8 @@ dist/
 .eggs/
 
 # dotenv
-.env
-.env.*
+# .env
+# .env.*
 !.env.example
 
 # =========================

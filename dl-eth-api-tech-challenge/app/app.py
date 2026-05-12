@@ -8,7 +8,7 @@ import sys
 import os
 import torch
 import joblib
-# from model import LSTM
+from model import LSTM
 
 APP_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = APP_DIR.parent
@@ -43,18 +43,24 @@ logger = logging.getLogger()
 
 CORS(app)
 
-# model = LSTM(2, 32, 2, 10)
+model = None
+model_load_error = None
+try:
+    model = LSTM(2, 32, 2, 10)
+    state_dict = torch.load(MODEL_WEIGHTS_PATH, weights_only=True)
+    model.load_state_dict(state_dict)
+except Exception as exc:
+    model_load_error = str(exc)
+    logger.exception('Falha ao carregar o modelo')
 
-state_dict = torch.load(MODEL_WEIGHTS_PATH, weights_only=True)
-# model.load_state_dict(state_dict)
 scaler = joblib.load(SCALER_PATH)
 inverse_scaler = joblib.load(INVERSE_SCALER_PATH)
 
-# app.config['MODEL'] = model
+app.config['MODEL'] = model
 app.config['SCALER'] = scaler
 app.config['INVERSE_SCALER'] = inverse_scaler
 app.config['PREDICT_FUNC'] = predict_future_from_history
-app.config['MODEL_LOAD_ERROR'] = None
+app.config['MODEL_LOAD_ERROR'] = model_load_error
 
 try:
     from .routes.routes import api_bp
@@ -80,4 +86,5 @@ swagger = Swagger(app, config=app.config['SWAGGER_CONFIG'])
 
 if __name__ == '__main__':
     logger.info('Aplicação iniciada')
-    app.run(host='0.0.0.0', port=8080)
+    # app.run(host='0.0.0.0', port=8080)
+    app.run(debug=False)

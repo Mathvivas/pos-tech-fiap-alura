@@ -2,8 +2,32 @@ import torch
 import pandas as pd
 import numpy as np
 import yfinance as yf
+import sys
 
 from datetime import timedelta
+
+
+def _reshape_to_training_format(sequence, seq_len):
+    """
+    Converts (seq_len, 2) with [Close, Volume] per timestep into the
+    interleaved half-split format used during training:
+      - Interleave Close and Volume values
+      - Split into first half (older) and second half (newer)
+      - Stack as (seq_len, 2) features
+    """
+    half = seq_len // 2
+    close_vals = sequence[:, 0]
+    vol_vals = sequence[:, 1]
+
+    first_half = np.empty(seq_len)
+    first_half[0::2] = close_vals[:half]
+    first_half[1::2] = vol_vals[:half]
+
+    second_half = np.empty(seq_len)
+    second_half[0::2] = close_vals[half:]
+    second_half[1::2] = vol_vals[half:]
+
+    return np.stack([first_half, second_half], axis=1)
 
 def predict_future_from_history(
     data_referencia,
@@ -58,16 +82,25 @@ def predict_future_from_history(
     if historical_df.empty:
         raise ValueError("Nenhum dado histórico encontrado para o período especificado.")
 
+    # print(f'[DIAG] yf.download columns: {historical_df.columns.tolist()}', flush=True)
+    # print(f'[DIAG] yf.download shape: {historical_df.shape}', flush=True)
+
     # Keep only Close price and Volume
     historical_prices = historical_df[['Close', 'Volume']].copy()
     historical_prices.rename(columns={'Close': 'Historical_Close', 'Volume': 'Historical_Volume'}, inplace=True)
     historical_prices.index = historical_prices.index.tz_localize(None)
 
+    # print(f'[DIAG] historical_prices columns: {historical_prices.columns.tolist()}', flush=True)
+    # print(f'[DIAG] historical_prices tail(3):\n{historical_prices.tail(3)}', flush=True)
+
     # =====================================
     # PREPARAR ENTRADA PARA LSTM
     # =====================================
     historical_values = historical_prices[['Historical_Close', 'Historical_Volume']].values
+    # print(f'[DIAG] historical_values shape: {historical_values.shape}, last row: {historical_values[-1]}', flush=True)
+
     scaled_historical_input = scaler.transform(historical_values)
+    # print(f'[DIAG] scaled_historical_input shape: {scaled_historical_input.shape}, last row: {scaled_historical_input[-1]}', flush=True)
 
     # Garantir que a sequência de entrada tenha o comprimento correto
     if len(scaled_historical_input) < dias_anteriores:
@@ -81,6 +114,10 @@ def predict_future_from_history(
     else:
         current_sequence_input = scaled_historical_input[-dias_anteriores:].copy()
 
+    # print(f'[DIAG] current_sequence_input shape: {current_sequence_input.shape}', flush=True)
+    # print(f'[DIAG] current_sequence_input first row: {current_sequence_input[0]}', flush=True)
+    # print(f'[DIAG] current_sequence_input last row: {current_sequence_input[-1]}', flush=True)
+
     # =========================
     # PREDIÇÕES (Recursivo Multi-Step)
     # =========================
@@ -93,14 +130,16 @@ def predict_future_from_history(
 
     with torch.no_grad():
         while steps_predicted_so_far < dias_previsao:
-            # Preparar o tensor de input para o modelo
+            model_input = _reshape_to_training_format(current_sequence_input, dias_anteriores)
             input_tensor = torch.tensor(
-                current_sequence_input,
+                model_input,
                 dtype=torch.float32
             ).view(1, dias_anteriores, 2)
 
             # Obter a previsão multi-step do modelo
             batch_predictions_scaled_close = model(input_tensor).numpy()[0] # shape (dias_previsao,)
+            # if steps_predicted_so_far == 0:
+            #     print(f'[DIAG] model raw output (scaled): {batch_predictions_scaled_close}', flush=True)
 
             # Determinar quantos passos de previsão pegar deste batch
             take_n = min(batch_predictions_scaled_close.shape[0], dias_previsao - steps_predicted_so_far)
@@ -124,9 +163,13 @@ def predict_future_from_history(
             steps_predicted_so_far += take_n
 
     # Reverter as previsões para a escala original usando scaler_inverse
+    # print(f'[DIAG] forecasted scaled values: {forecasted_values_scaled_close[:5]}', flush=True)
+
     predicted_prices = scaler_inverse.inverse_transform(
         np.array(forecasted_values_scaled_close).reshape(-1, 1)
     ).flatten()
+
+    # print(f'[DIAG] predicted_prices (first 5): {predicted_prices[:5]}', flush=True)
 
     # Gerar as datas futuras para as previsões
     future_dates = pd.date_range(

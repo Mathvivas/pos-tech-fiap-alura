@@ -42,11 +42,14 @@ def predict():
       503:
         description: Modelo indisponivel. Verifique os artefatos em app/model e dependencias.
     """
+    # print(f'[DIAG-ROUTE] /predict called', flush=True)
     payload = request.get_json(silent=True) or {}
+    # print(f'[DIAG-ROUTE] payload: {payload}', flush=True)
     required_fields = ['data_referencia', 'dias_previsao', 'dias_anteriores']
 
     missing_fields = [field for field in required_fields if field not in payload]
     if missing_fields:
+        # print(f'[DIAG-ROUTE] missing fields: {missing_fields}', flush=True)
         return jsonify({'message': f'Campos obrigatorios ausentes: {", ".join(missing_fields)}'}), 400
 
     model = current_app.config.get('MODEL')
@@ -55,13 +58,17 @@ def predict():
     predict_future_from_history = current_app.config.get('PREDICT_FUNC')
     model_load_error = current_app.config.get('MODEL_LOAD_ERROR')
 
+    # print(f'[DIAG-ROUTE] model={model is not None}, scaler={scaler is not None}, scaler_inv={scaler_inverse is not None}, func={predict_future_from_history is not None}', flush=True)
+
     if model is None or scaler is None or predict_future_from_history is None:
         message = 'Modelo indisponivel. Verifique app/model/model_weights.pth e app/model/scaler.pkl.'
         if model_load_error:
             message = f'{message} Detalhe: {model_load_error}'
+        # print(f'[DIAG-ROUTE] returning 503: {message}', flush=True)
         return jsonify({'message': message}), 503
 
     try:
+        # print(f'[DIAG-ROUTE] calling predict_future_from_history...', flush=True)
         result = predict_future_from_history(
             data_referencia=payload['data_referencia'],
             dias_previsao=payload['dias_previsao'],
@@ -70,6 +77,7 @@ def predict():
             scaler_inverse=scaler_inverse,
             model=model
         )
+        # print(f'[DIAG-ROUTE] prediction completed, result shape: {result.shape}', flush=True)
         
         result_list = [
             {
@@ -85,6 +93,7 @@ def predict():
             'data': result_list
         }), 200
     except ValueError as exc:
+        # print(f'[DIAG-ROUTE] ValueError: {exc}', flush=True)
         return jsonify({'message': str(exc)}), 400
     except Exception:
         current_app.logger.exception('Erro ao processar /predict')

@@ -32,4 +32,4 @@ EXPOSE 8080
 ENV PYTHONUNBUFFERED=1
 
 # Run the application with gunicorn
-CMD ["sh", "-c", "gunicorn app:app --bind 0.0.0.0:${PORT:-8080}"]
+CMD ["sh", "-c", "gunicorn app:app --bind 0.0.0.0:${PORT:-8080} --timeout 120"]

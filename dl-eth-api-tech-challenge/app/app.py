@@ -36,8 +36,10 @@ INVERSE_SCALER_PATH = APP_DIR / 'model' / 'inverse_scaler.pkl'
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S',
-                    filename='logging.info',
-                    filemode='w')
+                    handlers=[
+                        logging.FileHandler('logging.info', mode='w'),
+                        logging.StreamHandler(sys.stdout),
+                    ])
 
 logger = logging.getLogger()
 
@@ -45,16 +47,29 @@ CORS(app)
 
 model = None
 model_load_error = None
+
+logger.info(f'MODEL_WEIGHTS_PATH: {MODEL_WEIGHTS_PATH} (exists: {MODEL_WEIGHTS_PATH.exists()})')
+logger.info(f'SCALER_PATH: {SCALER_PATH} (exists: {SCALER_PATH.exists()})')
+logger.info(f'INVERSE_SCALER_PATH: {INVERSE_SCALER_PATH} (exists: {INVERSE_SCALER_PATH.exists()})')
+
 try:
     model = LSTM(2, 32, 2, 10)
-    state_dict = torch.load(MODEL_WEIGHTS_PATH, weights_only=True)
+    state_dict = torch.load(MODEL_WEIGHTS_PATH, map_location='cpu', weights_only=True)
     model.load_state_dict(state_dict)
+    model.eval()
+    total_params = sum(p.numel() for p in model.parameters())
+    param_sum = sum(p.sum().item() for p in model.parameters())
+    logger.info(f'Modelo carregado com sucesso: {total_params} params, soma dos pesos: {param_sum:.6f}')
 except Exception as exc:
+    model = None
     model_load_error = str(exc)
     logger.exception('Falha ao carregar o modelo')
 
 scaler = joblib.load(SCALER_PATH)
 inverse_scaler = joblib.load(INVERSE_SCALER_PATH)
+
+logger.info(f'Scaler data_min_: {scaler.data_min_}, data_max_: {scaler.data_max_}')
+logger.info(f'Inverse scaler data_min_: {inverse_scaler.data_min_}, data_max_: {inverse_scaler.data_max_}')
 
 app.config['MODEL'] = model
 app.config['SCALER'] = scaler

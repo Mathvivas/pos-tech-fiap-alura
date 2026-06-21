@@ -15,6 +15,8 @@ import mlflow.pytorch
 import warnings
 
 from src_config import *
+from data.kaggle import run as run_step1
+from data.synthetic_enrichment import run as run_step2
 
 warnings.filterwarnings("ignore")
 torch.manual_seed(SEED)
@@ -173,78 +175,77 @@ class DeterministicBaseline:
 # ══════════════════════════════════════════════════════════════════
 
 def train_model(X_client: np.ndarray, y: np.ndarray,
-                arm_features: dict,
+                arm_features: dict = ARM_FEATURES,
                 epochs: int = 80, lr: float = 5e-4,
-                batch_size: int = 256) -> ConversionNet:
+                batch_size: int = 256) -> tuple:
     """
-    Treina o modelo com todas as features (cliente + oferta).
-    input_dim = n_client_feats + n_arm_feats calculado antes de instanciar o modelo,
-    antes de instanciar o modelo, e usado consistentemente.
+    Treina ConversionNet expandindo o dataset por braço.
+    input_dim = n_client + n_arm calculado antes de instanciar o modelo.
+    split correto antes de criar tensors.
     """
-
-    # Calcula input_dim definitivo antes de tudo
-    n_client = X_client.shape[1]
-    n_arm    = len(next(iter(arm_features.values())))
+    n_client  = X_client.shape[1]
+    n_arm     = len(next(iter(arm_features.values())))
     input_dim = n_client + n_arm
     print(f"input_dim: {n_client} (cliente) + {n_arm} (oferta) = {input_dim}")
-
-    # Expande dataset: cada linha do cliente × cada braço
-    arm_names  = list(arm_features.keys())
-    arm_scaler = MinMaxScaler()  # BUG 6: scaler separado para features de oferta
+ 
+    # Scaler separado para features de oferta
     arm_vals   = np.array([list(v.values()) for v in arm_features.values()],
                            dtype=np.float32)
-    arm_scaler.fit(arm_vals)
-
-    X_expanded, y_expanded = [], []
+    arm_scaler = MinMaxScaler().fit(arm_vals)
+ 
+    # Expande: cada cliente × cada braço
+    arm_names = list(arm_features.keys())
+    X_exp, y_exp = [], []
     for i, arm in enumerate(arm_names):
         a_vec = arm_scaler.transform(arm_vals[i:i+1]).flatten()
         for j in range(len(X_client)):
-            X_expanded.append(np.concatenate([X_client[j], a_vec]))
-            y_expanded.append(float(y[j]))
-
-    X_exp = np.array(X_expanded, dtype=np.float32)
-    y_exp = np.array(y_expanded, dtype=np.float32)
-
-    # Split correto ANTES de criar tensors
+            X_exp.append(np.concatenate([X_client[j], a_vec]))
+            y_exp.append(float(y[j]))
+ 
+    X_exp = np.array(X_exp, dtype=np.float32)
+    y_exp = np.array(y_exp, dtype=np.float32)
+ 
+    # Split antes dos tensors
     X_tr, X_vl, y_tr, y_vl = train_test_split(
-        X_exp, y_exp, test_size=0.2, random_state=42,
+        X_exp, y_exp, test_size=0.2, random_state=SEED,
         stratify=(y_exp > 0.5).astype(int)
     )
-    print(f"Treino: {len(y_tr)} | Val: {len(y_vl)} | "
-          f"pos_treino={y_tr.mean():.2%} | pos_val={y_vl.mean():.2%}")
-
+    print(f"Treino: {len(y_tr):,} | Val: {len(y_vl):,} | "
+          f"pos_tr={y_tr.mean():.2%} | pos_vl={y_vl.mean():.2%}")
+ 
     X_tr_t = torch.tensor(X_tr, dtype=torch.float32)
     y_tr_t = torch.tensor(y_tr, dtype=torch.float32)
     X_vl_t = torch.tensor(X_vl, dtype=torch.float32)
     y_vl_t = torch.tensor(y_vl, dtype=torch.float32)
-
-    # BUG 8: usa input_dim calculado acima
+ 
     model  = ConversionNet(input_dim=input_dim)
-
+ 
     n_neg  = (y_tr < 0.5).sum()
     n_pos  = max((y_tr > 0.5).sum(), 1)
     weight = torch.tensor([n_neg / n_pos], dtype=torch.float32)
-    print(f"pos_weight: {weight.item():.2f}")
-
-    # BCEWithLogitsLoss espera logits crus (aplica sigmoid internamente)
+ 
+    # BCEWithLogitsLoss espera logits crus
     criterion = nn.BCEWithLogitsLoss(pos_weight=weight)
     optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=10, factor=0.5)
-
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, patience=10, factor=0.5
+    )
     loader = torch.utils.data.DataLoader(
         torch.utils.data.TensorDataset(X_tr_t, y_tr_t),
         batch_size=batch_size, shuffle=True
     )
-
-    best_auc   = 0.0
-    best_state = None
-
+ 
+    best_auc, best_state = 0.0, None
+ 
+    mlflow.set_experiment(MLFLOW_EXPERIMENT)
     with mlflow.start_run(run_name="conversion_net_jyb"):
-        mlflow.log_params({"input_dim": input_dim, "n_client": n_client,
-                           "n_arm": n_arm, "hidden": 64, "drop": 0.3,
-                           "epochs": epochs, "lr": lr,
-                           "pos_weight": round(weight.item(), 2)})
-
+        mlflow.log_params({
+            "input_dim": input_dim, "hidden": 64, "drop": 0.3,
+            "epochs": epochs, "lr": lr,
+            "pos_weight": round(weight.item(), 2),
+            "n_arms": len(arm_names),
+        })
+ 
         for epoch in range(epochs):
             model.train()
             train_loss = 0.0
@@ -256,41 +257,58 @@ def train_model(X_client: np.ndarray, y: np.ndarray,
                 optimizer.step()
                 train_loss += loss.item() * len(yb)
             train_loss /= len(y_tr_t)
-
-            # Validação com X_vl_t / y_vl_t (conjuntos corretos)
+ 
+            # Validação com X_vl_t correto
             model.eval()
             with torch.no_grad():
-                val_logits = model(X_vl_t)           # ← X_vl_t correto
+                val_logits = model(X_vl_t)
                 val_loss   = criterion(val_logits, y_vl_t).item()
                 val_probs  = torch.sigmoid(val_logits).numpy()
-
+ 
             val_auc = roc_auc_score((y_vl > 0.5).astype(int), val_probs)
             val_apr = average_precision_score((y_vl > 0.5).astype(int), val_probs)
             scheduler.step(val_loss)
-
+ 
             if val_auc > best_auc:
                 best_auc   = val_auc
                 best_state = {k: v.clone() for k, v in model.state_dict().items()}
-
+ 
             if (epoch + 1) % 10 == 0:
-                print(f"Epoch {epoch+1:3d} | train={train_loss:.4f} | "
+                print(f"  Epoch {epoch+1:3d} | train={train_loss:.4f} | "
                       f"val={val_loss:.4f} | auc={val_auc:.4f} | apr={val_apr:.4f}")
-                mlflow.log_metrics({"train_loss": train_loss, "val_loss": val_loss,
-                                    "val_auc": val_auc, "val_apr": val_apr},
-                                   step=epoch+1)
-
+                mlflow.log_metrics({
+                    "train_loss": train_loss, "val_loss": val_loss,
+                    "val_auc": val_auc, "val_apr": val_apr,
+                }, step=epoch+1)
+ 
         model.load_state_dict(best_state)
         model.eval()
-
+ 
         with torch.no_grad():
             final_probs = torch.sigmoid(model(X_vl_t)).numpy()
         final_auc = roc_auc_score((y_vl > 0.5).astype(int), final_probs)
-        print(f"\nMelhor modelo: AUC={final_auc:.4f} | "
-              f"media_pred={final_probs.mean():.4f} "
-              f"(taxa_real={y_vl.mean():.4f})")
+        print(f"\nMelhor AUC: {final_auc:.4f} | "
+              f"media_pred={final_probs.mean():.4f} (taxa_real={y_vl.mean():.4f})")
+ 
         mlflow.log_metrics({"best_auc": final_auc, "pred_mean": final_probs.mean()})
-        mlflow.pytorch.log_model(model, "model")
-
+        input_example = X_vl_t[:1]
+        mlflow.pytorch.log_model(
+            model,
+            "model",
+            input_example=input_example,
+            serialization_format="pickle",
+        )
+ 
+        # Salva localmente também
+        model_path = MODELS_DIR / "conversion_net.pt"
+        torch.save({
+            "model_state": model.state_dict(),
+            "input_dim":   input_dim,
+            "hidden":      64,
+            "drop":        0.3,
+        }, model_path)
+        print(f"Modelo salvo: {model_path}")
+ 
     return model, arm_scaler
 
 # ══════════════════════════════════════════════════════════════════
@@ -511,8 +529,6 @@ def run(df: pd.DataFrame, synth: dict) -> dict:
  
  
 if __name__ == "__main__":
-    from step1_kaggle   import run as run_step1
-    from step2_synthetic import run as run_step2
     df   = run_step1()
     synth = run_step2(df)
     run(df, synth)

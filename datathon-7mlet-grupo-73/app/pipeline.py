@@ -24,9 +24,14 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
  
+# Garantir que o diretório raiz do projeto está no PYTHONPATH
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+ 
 from src_config import *
-import kaggle
-import synthetic_enrichment
+import data.kaggle as kaggle
+import data.synthetic_enrichment as synthetic_enrichment
 import model
 import evaluation
 
@@ -96,17 +101,18 @@ def run_step3(df: pd.DataFrame, synth: dict,
     if skip_train:
         print("--skip-train: carregando modelo salvo...")
         arts = load_preprocessing_artifacts()
-        model = load_saved_model(arts)
+        trained_model = load_saved_model(arts)
         encoders, scaler = arts["encoders"], arts["scaler"]
         arm_scaler       = arts["arm_scaler"]
         feature_cols     = arts["feature_cols"]
     else:
-        model, arm_scaler = model.train_model(X, y)
+        trained_model, arm_scaler = model.train_model(X, y)
         save_preprocessing_artifacts(encoders, scaler, arm_scaler, feature_cols)
  
     bandit = model.NeuralThompsonSampling(
-        model=model, arms=ARMS, scaler=scaler,
+        model=trained_model, arms=ARMS, scaler=scaler,
         arm_scaler=arm_scaler, feature_cols=feature_cols,
+        arm_features=ARM_FEATURES
     )
     baseline = model.DeterministicBaseline(ARM_TRUE_RATES)
  
@@ -126,7 +132,8 @@ def run_step3(df: pd.DataFrame, synth: dict,
         except Exception:
             continue
  
-        reward = int(row.get("reward", 0))
+        reward_raw = row.get("reward", 0)
+        reward = 0 if pd.isna(reward_raw) else int(reward_raw)
  
         dec = bandit.choose(ctx)
         bandit.update(ctx, dec["arm_chosen"], reward)
@@ -241,7 +248,7 @@ def run_diagnostics(model_artifacts: dict, df: pd.DataFrame):
     mc_std = np.std(samples)
     print(f"\n  MC Dropout std (30 passes): {mc_std:.4f}", end="")
     if mc_std < 0.001:
-        print("  ← ALERTA: std=0 (BUG 3?)")
+        print("  ← ALERTA: std=0")
     elif mc_std > 0.35:
         print("  ← ALERTA: std muito alto (modelo não treinado?)")
     else:

@@ -4,14 +4,14 @@ Todas as constantes ficam aqui — nunca hardcoded nos módulos.
 """
 from pathlib import Path
 
-ROOT         = Path(__file__).parent
-DATA_KAGGLE  = ROOT / "data" / "kaggle"
-DATA_PROC    = ROOT / "data" / "processed"
-DATA_SYNTH   = ROOT / "data" / "synthetic_enrichment"
-DATA_GOLDEN  = ROOT / "data" / "golden_set"
-LOGS_DIR     = ROOT / "logs"
-MODELS_DIR   = ROOT / "models"
-REPORTS_DIR  = ROOT / "reports"
+ROOT            = Path(__file__).parent
+DATA_KAGGLE     = ROOT / "data" / "kaggle"
+DATA_PROCESSED  = ROOT / "data" / "processed"
+DATA_SYNTH      = ROOT / "data" / "synthetic_enrichment"
+DATA_GOLDEN     = ROOT / "data" / "golden_set"
+LOGS_DIR        = ROOT / "logs"
+MODELS_DIR      = ROOT / "models"
+REPORTS_DIR     = ROOT / "reports"
 
 SEED         = 42
 TARGET_COL   = "y"

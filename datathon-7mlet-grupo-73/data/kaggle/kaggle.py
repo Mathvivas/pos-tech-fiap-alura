@@ -11,7 +11,7 @@ np.random.seed(SEED)
 
 def load(path: Path) -> pd.DataFrame:
     """Carrega o dataset do Kaggle."""
-    df = pd.read_csv(path)
+    df = pd.read_csv(path, sep=';', index_col=0)
     print(f'Dataset carregado com {df.shape[0]:,} linhas e {df.shape[1]} colunas.')
     return df
 
@@ -29,15 +29,14 @@ def remove_leakage(df: pd.DataFrame) -> pd.DataFrame:
 def run() -> pd.DataFrame:
     raw_path = DATA_KAGGLE / 'train.csv'
 
-    if raw_path.exists():
-        df_raw = load(raw_path)
-        df = remove_leakage(df_raw)
-        processed_path = DATA_PROCESSED / 'kaggle.csv'
-        df.to_csv(processed_path, index=False)
-        print(f'Dataset processado salvo em: {processed_path}')
-    else:
-        print('Arquivo Kaggle não encontrado.')
-
+    if not raw_path.exists():
+        raise FileNotFoundError(f'Arquivo Kaggle não encontrado: {raw_path}')
+    
+    df_raw = load(raw_path)
+    df = remove_leakage(df_raw)
+    processed_path = DATA_PROCESSED / 'kaggle.csv'
+    df.to_csv(processed_path, index=False, header=True)
+    print(f'Dataset processado salvo em: {processed_path}')
 
     # Relatório básico de qualidade
     unknown_counts = {
@@ -50,8 +49,8 @@ def run() -> pd.DataFrame:
     print(f"Nulos: {df.isnull().sum().sum()}")
     print(f"Taxa de conversão: {(df[TARGET_COL]=='yes').mean():.2%}")
  
-    out_path = DATA_PROC / "bank_jyb_processed.csv"
-    df.to_csv(out_path, index=False)
+    out_path = DATA_PROCESSED / "bank_jyb_processed.csv"
+    df.to_csv(out_path, index=False, sep=',')
     print(f"Dataset processado salvo: {out_path}")
     return df
  

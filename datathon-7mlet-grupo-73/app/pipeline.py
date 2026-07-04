@@ -34,6 +34,9 @@ import data.kaggle as kaggle
 import data.synthetic_enrichment as synthetic_enrichment
 import model
 import evaluation
+import api
+import azure
+import mlops
 
 # ══════════════════════════════════════════════════════════════════
 # Utilitários
@@ -195,18 +198,29 @@ def run_step5_save(model_artifacts: dict):
         arm_scaler   = model_artifacts["arm_scaler"],
         feature_cols = model_artifacts["feature_cols"],
     )
+    return api.run(model_artifacts)
  
-    # Exemplo de chamada para a API (pode ser testado com uvicorn)
-    sample = {
-        "client_features": {col: 0.0 for col in model_artifacts["feature_cols"]},
-        "policy_version": POLICY_VERSION,
-    }
-    print("Exemplo de chamada à API:")
-    print(f"  POST /decide")
-    print(f"  {json.dumps(sample, indent=4)}")
-    print("\nPara iniciar a API localmente:")
-    print("  uvicorn app.main:app --reload --port 8000")
-    print("  curl http://localhost:8000/health")
+    # # Exemplo de chamada para a API (pode ser testado com uvicorn)
+    # sample = {
+    #     "client_features": {col: 0.0 for col in model_artifacts["feature_cols"]},
+    #     "policy_version": POLICY_VERSION,
+    # }
+    # print("Exemplo de chamada à API:")
+    # print(f"  POST /decide")
+    # print(f"  {json.dumps(sample, indent=4)}")
+    # print("\nPara iniciar a API localmente:")
+    # print("  uvicorn app.main:app --reload --port 8000")
+    # print("  curl http://localhost:8000/health")
+
+def run_step6(model_artifacts: dict) -> dict:
+    """Gera documentação de arquitetura Azure."""
+    banner("ETAPA 6 — Deploy no Azure")
+    return azure.run(model_artifacts)
+
+def run_step7(model_artifacts: dict, synth: dict, df: pd.DataFrame) -> dict:
+    """Ciclo MLOps: drift, retreino, approval gate, promoção."""
+    banner("ETAPA 7 — Ciclo MLOps")
+    return mlops.run(model_artifacts, synth, df)
 
 # ══════════════════════════════════════════════════════════════════
 # Diagnóstico final
@@ -300,6 +314,12 @@ def main():
  
     if args.step in (0, 5):
         run_step5_save(model_artifacts)
+
+    if args.step in (0, 6, 7):
+        run_step6(model_artifacts)
+    
+    if args.step in (0, 7):
+        run_step7(model_artifacts, synth, df)
  
     if args.step == 0:
         run_diagnostics(model_artifacts, df)

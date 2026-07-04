@@ -1,0 +1,9 @@
+README.md
+pyproject.toml
+src_config.py
+Datathon.egg-info/PKG-INFO
+Datathon.egg-info/SOURCES.txt
+Datathon.egg-info/dependency_links.txt
+Datathon.egg-info/entry_points.txt
+Datathon.egg-info/requires.txt
+Datathon.egg-info/top_level.txt

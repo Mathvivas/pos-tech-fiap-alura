@@ -1,0 +1,35 @@
+{
+  "drift_detected": false,
+  "max_delta": 0.0,
+  "threshold": 0.05,
+  "window_days": 7,
+  "n_windows": 1,
+  "windows": [
+    {
+      "window": 0,
+      "conv_rate": 0.0,
+      "n_obs": 1,
+      "n_conv": 0,
+      "prev_conv": NaN,
+      "delta": NaN,
+      "drift": false
+    }
+  ],
+  "feature_drift": {
+    "feature_psi": {
+      "age": {
+        "psi": 0.0308,
+        "status": "stable"
+      },
+      "campaign": {
+        "psi": 3.8477,
+        "status": "retrain"
+      },
+      "previous": {
+        "psi": 0.0,
+        "status": "stable"
+      }
+    },
+    "needs_retrain": true
+  }
+}

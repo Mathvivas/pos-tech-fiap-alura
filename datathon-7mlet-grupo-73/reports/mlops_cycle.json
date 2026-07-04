@@ -1,0 +1,53 @@
+{
+  "timestamp": "2026-07-04T14:32:34.713653",
+  "current_version": "v1.0",
+  "drift_report": {
+    "drift_detected": false,
+    "max_delta": 0.0,
+    "threshold": 0.05,
+    "window_days": 7,
+    "n_windows": 1,
+    "windows": [
+      {
+        "window": 0,
+        "conv_rate": 0.0,
+        "n_obs": 1,
+        "n_conv": 0,
+        "prev_conv": NaN,
+        "delta": NaN,
+        "drift": false
+      }
+    ],
+    "feature_drift": {
+      "feature_psi": {
+        "age": {
+          "psi": 0.0308,
+          "status": "stable"
+        },
+        "campaign": {
+          "psi": 3.8477,
+          "status": "retrain"
+        },
+        "previous": {
+          "psi": 0.0,
+          "status": "stable"
+        }
+      },
+      "needs_retrain": true
+    }
+  },
+  "retrain_needed": true,
+  "candidate": {
+    "version": "v2.0",
+    "status": "approved",
+    "metrics": {
+      "auc": 0.7953,
+      "n_samples": 28645
+    },
+    "created_at": "2026-07-04T14:32:34.473522",
+    "approved_by": "auto_gate",
+    "approved_at": "2026-07-04T14:32:34.474083"
+  },
+  "promoted": true,
+  "rollback_available": true
+}

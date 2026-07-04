@@ -1,0 +1,73 @@
+{
+  "total": 13,
+  "passed": 13,
+  "failed": 0,
+  "pass_rate": 1.0,
+  "results": [
+    {
+      "name": "T01 - /health retorna status=ok",
+      "passed": true,
+      "message": "policy_version=v1.0"
+    },
+    {
+      "name": "T02 — /arms retorna braços corretos",
+      "passed": true,
+      "message": "5 braços"
+    },
+    {
+      "name": "T03 — /decide retorna arm_chosen, event_id, reason_codes",
+      "passed": true,
+      "message": "arm_chosen=previdencia"
+    },
+    {
+      "name": "T04 — arm_chosen é um dos ARMS definidos",
+      "passed": true,
+      "message": "cashback"
+    },
+    {
+      "name": "T05 — reason_codes tem estimated_conversion, uncertainty_std, exploring",
+      "passed": true,
+      "message": "conv=24.5% std=0.1140"
+    },
+    {
+      "name": "T06 — policy_version propagado corretamente",
+      "passed": true,
+      "message": ""
+    },
+    {
+      "name": "T07 — /decide com features ausentes levanta ValueError",
+      "passed": true,
+      "message": "ValueError levantado corretamente"
+    },
+    {
+      "name": "T08 — /reward com dados válidos retorna status=ok",
+      "passed": true,
+      "message": "buffer_size=1"
+    },
+    {
+      "name": "T09 — /reward com reward=0 (sem conversão) funciona",
+      "passed": true,
+      "message": ""
+    },
+    {
+      "name": "T10 — /reward com arm inválido levanta ValueError",
+      "passed": true,
+      "message": "ValueError levantado corretamente"
+    },
+    {
+      "name": "T11 — /reward com reward=2 levanta ValueError",
+      "passed": true,
+      "message": "ValueError levantado corretamente"
+    },
+    {
+      "name": "T12 — log auditável gerado em logs/decisions.jsonl",
+      "passed": true,
+      "message": "43 entradas no log"
+    },
+    {
+      "name": "T13 — estimates cobre todos os ARMS",
+      "passed": true,
+      "message": "5 braços estimados"
+    }
+  ]
+}

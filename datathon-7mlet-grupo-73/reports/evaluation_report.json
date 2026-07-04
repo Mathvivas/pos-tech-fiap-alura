@@ -1,0 +1,26 @@
+{
+  "golden_pass_rate": 1.0,
+  "fairness": {
+    "exposure": {
+      "A_reativacao_positiva": 102,
+      "B_reativacao_negativa": 330,
+      "C_alta_propensao": 142,
+      "D_comprometido_financeiramente": 215,
+      "E_cold_start_generico": 2211
+    },
+    "conversion": {
+      "A_reativacao_positiva": 0.0,
+      "B_reativacao_negativa": 0.0,
+      "C_alta_propensao": 0.0,
+      "D_comprometido_financeiramente": 0.0,
+      "E_cold_start_generico": 0.0
+    },
+    "exposure_share": {
+      "A_reativacao_positiva": 0.034,
+      "B_reativacao_negativa": 0.11,
+      "C_alta_propensao": 0.0473,
+      "D_comprometido_financeiramente": 0.0717,
+      "E_cold_start_generico": 0.737
+    }
+  }
+}

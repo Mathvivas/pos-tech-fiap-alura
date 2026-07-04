@@ -1,0 +1,66 @@
+[
+  {
+    "offer_id": "dep_6m_8pct",
+    "name": "Depósito 6m 8% a.a.",
+    "channel": "app",
+    "duration_months": 6,
+    "rate": 0.08,
+    "segment_affinity": [
+      "A_reativacao_positiva",
+      "C_alta_propensao"
+    ],
+    "base_conversion_rate": 0.18,
+    "description": "Depósito de curto prazo com rentabilidade atrativa"
+  },
+  {
+    "offer_id": "dep_12m_10pct",
+    "name": "Depósito 12m 10% a.a.",
+    "channel": "email",
+    "duration_months": 12,
+    "rate": 0.1,
+    "segment_affinity": [
+      "A_reativacao_positiva",
+      "B_reativacao_negativa"
+    ],
+    "base_conversion_rate": 0.14,
+    "description": "Depósito de médio prazo com taxa competitiva"
+  },
+  {
+    "offer_id": "reativacao",
+    "name": "Oferta de Reativação",
+    "channel": "sms",
+    "duration_months": 3,
+    "rate": 0.07,
+    "segment_affinity": [
+      "A_reativacao_positiva"
+    ],
+    "base_conversion_rate": 0.28,
+    "description": "Oferta personalizada para clientes com histórico positivo"
+  },
+  {
+    "offer_id": "cashback",
+    "name": "Cashback no débito",
+    "channel": "app",
+    "duration_months": 0,
+    "rate": 0.02,
+    "segment_affinity": [
+      "C_alta_propensao",
+      "E_cold_start_generico"
+    ],
+    "base_conversion_rate": 0.09,
+    "description": "Benefício imediato para novos engajamentos"
+  },
+  {
+    "offer_id": "previdencia",
+    "name": "Previdência Privada",
+    "channel": "email",
+    "duration_months": 24,
+    "rate": 0.06,
+    "segment_affinity": [
+      "C_alta_propensao",
+      "D_comprometido_financeiro"
+    ],
+    "base_conversion_rate": 0.12,
+    "description": "Produto de longo prazo para planejamento financeiro"
+  }
+]

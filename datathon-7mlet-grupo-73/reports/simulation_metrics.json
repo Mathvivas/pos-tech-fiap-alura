@@ -1,0 +1,36 @@
+{
+  "bandit": {
+    "total_rounds": 3000,
+    "total_reward": 0,
+    "conversion_rate": 0.0,
+    "cumulative_regret": 840.0,
+    "exploration_rate": 0.7933,
+    "arm_selection_counts": {
+      "cashback": 645,
+      "dep_6m_8pct": 622,
+      "reativacao": 620,
+      "dep_12m_10pct": 566,
+      "previdencia": 547
+    },
+    "arm_conversion_rates": {
+      "cashback": 0.0,
+      "dep_12m_10pct": 0.0,
+      "dep_6m_8pct": 0.0,
+      "previdencia": 0.0,
+      "reativacao": 0.0
+    }
+  },
+  "baseline": {
+    "total_rounds": 3000,
+    "total_reward": 0,
+    "conversion_rate": 0.0,
+    "cumulative_regret": 840.0,
+    "exploration_rate": 0.0,
+    "arm_selection_counts": {
+      "reativacao": 3000
+    },
+    "arm_conversion_rates": {
+      "reativacao": 0.0
+    }
+  }
+}

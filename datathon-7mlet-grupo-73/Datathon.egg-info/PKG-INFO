@@ -1,0 +1,18 @@
+Metadata-Version: 2.4
+Name: Datathon
+Version: 0.1.0
+Summary: A datathon project for data analysis and machine learning.
+Author-email: Matheus Lopes Vivas <mathvivas@hotmail.com>
+License-Expression: MIT
+Requires-Python: >=3.11
+Requires-Dist: matplotlib
+Requires-Dist: jupyterlab
+Requires-Dist: torch>=2.2
+Requires-Dist: scikit-learn>=1.4
+Requires-Dist: pandas>=2.2
+Requires-Dist: numpy>=1.26
+Requires-Dist: mlflow>=2.12
+Requires-Dist: fastapi>=0.111
+Requires-Dist: uvicorn>=0.29
+Requires-Dist: pydantic>=2.7
+Requires-Dist: evidently>=0.4

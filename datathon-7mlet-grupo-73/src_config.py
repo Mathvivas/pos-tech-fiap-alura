@@ -3,6 +3,12 @@ Configurações centrais do projeto.
 Todas as constantes ficam aqui — nunca hardcoded nos módulos.
 """
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "sqlite:///mlruns.db")
 
 ROOT            = Path(__file__).parent
 DATA_KAGGLE     = ROOT / "data" / "kaggle"

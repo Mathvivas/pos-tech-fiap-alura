@@ -238,7 +238,7 @@ def train_model(X_client: np.ndarray, y: np.ndarray,
     best_auc, best_state = 0.0, None
  
     mlflow.set_experiment(MLFLOW_EXPERIMENT)
-    with mlflow.start_run(run_name="conversion_net_jyb"):
+    with mlflow.start_run(run_name="conversion_net_jyb", nested=True):
         mlflow.log_params({
             "input_dim": input_dim, "hidden": 64, "drop": 0.3,
             "epochs": epochs, "lr": lr,
